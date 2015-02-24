@@ -7,10 +7,13 @@
  */
 class Pharmacien extends Person {
     private $_id;
+    private $_pharmacie;
     
-    public function __construct($id=null, $lastname = NULL, $firstname = NULL) {
+    public function __construct($id=null, $lastname = NULL, $firstname = NULL,
+            $pharmacie = NULL) {
         parent::__construct($lastname, $firstname);
         $this->setId($id);
+        $this->setPharmacie($pharmacie);
     }
     
     public function getId() {
@@ -19,5 +22,20 @@ class Pharmacien extends Person {
     
     public function setId($id) {
         $this->_id = $id;
+    }
+    
+    public function getPharmacie() {
+        return $this->_pharmacie;
+    }
+    
+    public function setPharmacie($pharmacie) {
+        if($pharmacie)
+        {
+            $this->_pharmacie = $pharmacie;
+        }
+        else
+        {
+            $this->_pharmacie = new Pharmacie();
+        }
     }
 }

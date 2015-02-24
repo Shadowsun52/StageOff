@@ -13,7 +13,11 @@ class Controller {
     }
     
     public function getEtudiant($matricule) {
-        return $this->_dbAccess->getEtudiant($matricule);
+        return $this->_getDbAccess()->getEtudiant($matricule);
+    }
+    
+    public function getPharmacien($id) {
+        return $this->_getDbAccess()->getPharmacien($id);
     }
     
     private function _getDbAccess() {

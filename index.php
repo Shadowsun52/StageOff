@@ -2,7 +2,7 @@
     try {
         include('init.php');
         $controller = new Controller();
-        $p = $controller->getEtudiant(32954);
+        $test = $controller->getPharmacien(254);
     } catch (Exception $ex) {
         echo $ex->getMessage();
     }
@@ -15,7 +15,7 @@
     </head>
     <body>
         <?php
-            echo $p->getLastName();
+            echo $test->getLastName();
         ?>
     </body>
 </html>
