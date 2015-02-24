@@ -1,38 +1,40 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of Person
  *
  * @author Alexandre
  */
 abstract class Person {
-    protected $firstname;
-    protected $lastname;
-    protected $bdd;
+    private $_firstname;
+    private $_lastname;
+    private $_db;
     
     public function __construct() {
-        
+        $this->setDB(PDO2::getInstance()->db);
     }
     
     public function getFirstname() {
-        return $this->firstname;
+        return $this->_firstname;
     }
     
     public function setFirstname($firstname) {
-        $this->firstname = $firstname;
+        $this->_firstname = $firstname;
     }
     
     public function getLastName() {
-        return $this->lastname;
+        return $this->_lastname;
     }
     
     public function setLastName($lastname) {
-        $this->lastname = $lastname;
+        $this->_lastname = $lastname;
+    }
+    
+    public function getDB() {
+        return $this->_db;
+    }
+    
+    public function setDB($db) {
+        $this->_db = $db;
     }
 }

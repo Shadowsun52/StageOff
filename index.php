@@ -1,7 +1,7 @@
 <?php
     try {
         include('autoload.php');
-        $p = new Etudiant(5);
+        $p = new Etudiant(32954);
     } catch (Exception $ex) {
         echo $ex->getMessage();
     }
@@ -14,7 +14,7 @@
     </head>
     <body>
         <?php
-        
+            echo $p->getLastName();
         ?>
     </body>
 </html>
