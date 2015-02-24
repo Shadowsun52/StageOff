@@ -3,4 +3,5 @@
     require_once 'controller/Autoloader.class.php';
     
     $autoloader = new Autoloader('model');
-    $autoloader->addRepertory('data');    
+    $autoloader->addRepertory('data');  
+    $autoloader->addRepertory('controller');

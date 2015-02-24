@@ -10,8 +10,9 @@ abstract class Person {
     private $_lastname;
     private $_db;
     
-    public function __construct() {
-        $this->setDB(PDO2::getInstance()->db);
+    public function __construct($lastname=NULL, $firstname=NULL) {
+        $this->setFirstname($firstname);
+        $this->setLastName($lastname);
     }
     
     public function getFirstname() {
@@ -28,13 +29,5 @@ abstract class Person {
     
     public function setLastName($lastname) {
         $this->_lastname = $lastname;
-    }
-    
-    public function getDB() {
-        return $this->_db;
-    }
-    
-    public function setDB($db) {
-        $this->_db = $db;
     }
 }

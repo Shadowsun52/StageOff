@@ -1,7 +1,8 @@
 <?php
     try {
-        include('autoload.php');
-        $p = new Etudiant(32954);
+        include('init.php');
+        $controller = new Controller();
+        $p = $controller->getEtudiant(32954);
     } catch (Exception $ex) {
         echo $ex->getMessage();
     }
