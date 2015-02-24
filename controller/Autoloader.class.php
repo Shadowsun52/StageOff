@@ -10,32 +10,38 @@
 class Autoloader {
     
     private $_function_autoload;
-    private $_path;
+    private $_repertories;
     
     public function __construct($repertory) {
-        $this->_setPath($repertory);
+        $this->addRepertory($repertory);
         $this->_setFunctionAutoload();
         spl_autoload_register($this->_getFunctionAutoload());
     }
 
-    private function _setPath($repertory) {
-        $this->_path = config::read('ROOT') . $repertory;
-        
-        if(substr($this->_path, -1, 1) != '/')
-        {
-            $this->_path .= '/';
-        }
+    public function addRepertory($repertory) {
+        $this->_repertories[] = $repertory;
     }
     
-    public function getPath() {
-        return $this->_path;
+    public function getPath($i) {
+        $path = config::read('ROOT') . $this->_repertories[$i];
+        
+        if(substr($path, -1, 1) != '/')
+        {
+            $path .= '/';
+        }
+        return $path;
     }
     
     private function _setFunctionAutoload() {
         $this->_function_autoload = function ($class) {
-            if(file_exists($this->getPath() . $class . '.class.php'))
+            
+            $i = 0;
+            for(; $i < count($this->_repertories) 
+                    && !file_exists($this->getPath($i) . $class . '.class.php'); $i++);
+                    
+            if($i < count($this->_repertories))
             {
-                require_once $this->getPath() . $class . '.class.php';
+                require_once $this->getPath($i) . $class . '.class.php';
             }
             else
             {
