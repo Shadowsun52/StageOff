@@ -23,7 +23,7 @@ class DatabaseAccess {
             return $etudiant;
         } catch (Exception $ex) {
             throw new Exception ('Erreur lors de la lecture dans la base de '
-                    . 'données pour charger les informations de l\'étudiant.');
+                    . 'données durant le chargement les informations de l\'étudiant.');
         }    
     }
 
@@ -39,7 +39,7 @@ class DatabaseAccess {
             return $pharmacien;
         } catch (Exception $ex) {
             throw new Exception ('Erreur lors de la lecture dans la base de '
-                    . 'données pour charger les informations du pharmacien.');
+                    . 'données durant le chargement les informations du pharmacien.');
         }
     }
 
@@ -56,7 +56,25 @@ class DatabaseAccess {
             return $pharmacie;
         } catch (Exception $ex) {
             throw new Exception ('Erreur lors de la lecture dans la base de '
-                    . 'données lors du chargement des informations de la pharmacie.');
+                    . 'données durant le chargement des informations de la pharmacie.');
+        }
+    }
+    
+    public function getStage($id) {
+        try {
+            $sql = "SELECT ref_identification, ref_etudiant, date_debut, date_fin "
+                    . "FROM stage WHERE id = :id";
+            $request = $this->_getConnection()->prepare($sql);
+            $request->execute(array(':id' => $id));
+            $result = $request->fetch();
+            
+            $stage = new Stage($id, $result['date_debut'], $result['date_fin']);
+            $stage->setEtudiant($this->getEtudiant($result['ref_etudiant']));
+            $stage->setMaitreDeStage($this->getPharmacien($result['ref_identification']));
+            return $stage;
+        } catch (Exception $ex) {
+            throw new Exception ('Erreur lors de la lecture dans la base de '
+                    . 'données durant le chargement des informations du stage.');
         }
     }
     

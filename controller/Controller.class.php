@@ -12,6 +12,10 @@ class Controller {
         $this->_setDbAccess();
     }
     
+    public function getStage($id) {
+        return $this->_getDbAccess()->getStage($id);
+    }
+
     public function getEtudiant($matricule) {
         return $this->_getDbAccess()->getEtudiant($matricule);
     }
