@@ -5,3 +5,4 @@
     $autoloader = new Autoloader('model');
     $autoloader->addRepertory('data');  
     $autoloader->addRepertory('controller');
+    $autoloader->addRepertory('phpExcel');

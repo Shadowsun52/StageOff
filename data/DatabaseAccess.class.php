@@ -78,6 +78,19 @@ class DatabaseAccess {
         }
     }
     
+    public function getQuestionnaireTitle($id) {
+        try{
+            $sql = "SELECT libelle FROM questionnaire WHERE id = :id";
+            $request = $this->_getConnection()->prepare($sql);
+            $request->execute(array(':id' => $id));
+            $result = $request->fetch();
+            
+            return $result['libelle'];
+        } catch (Exception $ex) {
+            throw new Exception ('Erreur lors de la lecture dans la base de '
+                    . 'données durant le chargement des informations du stage.');
+        }
+    }
     private function _getConnection() {
         return $this->_connection;
     }
