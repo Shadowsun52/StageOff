@@ -18,12 +18,28 @@ class DatabaseAccess {
             $request = $this->_getConnection()->prepare($sql);
             $request->execute(array(':matricule' => $matricule));
             $result = $request->fetch();
+            
             $etudiant = new Etudiant($matricule, $result['nom'], $result['prenom']);
             return $etudiant;
         } catch (Exception $ex) {
             throw new Exception ('Erreur lors de la lecture dans la base de '
                     . 'données pour charger les informations de l\'étudiant.');
         }    
+    }
+
+    public function getPharmacien($id) {
+        try {
+            $sql = "SELECT nom, prenom FROM pharmacien WHERE id = :id";
+            $request = $this->_getConnection()->prepare($sql);
+            $request->execute(array(':id' => $id));
+            $result = $request->fetch();
+            
+            $pharmacien = new Pharmacien($id, $result['nom'], $result['prenom']);
+            return $pharmacien;
+        } catch (Exception $ex) {
+            throw new Exception ('Erreur lors de la lecture dans la base de '
+                    . 'données pour charger les informations du pharmacien.');
+        }
     }
 
     private function _getConnection() {
