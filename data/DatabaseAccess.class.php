@@ -10,12 +10,21 @@ use stageOff\model\Etudiant;
  * @author Alexandre
  */
 class DatabaseAccess {
+    /**
+     * @var PDO2 instance d'une connexion object PDO
+     */
     private $_connection;
     
     public function __construct() {
         $this->_setConnection();
     }
     
+    /**
+     * 
+     * @param int $matricule Matricule de l'étudiant à retourner
+     * @return Etudiant
+     * @throws Exception
+     */
     public function getEtudiant($matricule) {
         try {
             $sql = "SELECT nom, prenom FROM etudiant WHERE matricule = :matricule";
@@ -31,6 +40,12 @@ class DatabaseAccess {
         }    
     }
 
+    /**
+     * 
+     * @param int $id Identifiant du pharmacien à retourner
+     * @return Pharmacien
+     * @throws Exception
+     */
     public function getPharmacien($id) {
         try {
             $sql = "SELECT nom, prenom, ref_identification FROM pharmacien WHERE id = :id";
@@ -47,6 +62,12 @@ class DatabaseAccess {
         }
     }
 
+    /**
+     * 
+     * @param int $ref_id Identifiant de la pharmacie à retourner
+     * @return Pharmacie
+     * @throws Exception
+     */
     public function getPharmacie($ref_id) {
         try {
             $sql = "SELECT id, adresse, telephone, fax, mail FROM officine "
@@ -64,6 +85,12 @@ class DatabaseAccess {
         }
     }
     
+    /**
+     * 
+     * @param int $id Identifiant du stage à retourner
+     * @return Stage
+     * @throws Exception
+     */
     public function getStage($id) {
         try {
             $sql = "SELECT ref_identification, ref_etudiant, date_debut, date_fin "
@@ -72,7 +99,8 @@ class DatabaseAccess {
             $request->execute(array(':id' => $id));
             $result = $request->fetch();
             
-            $stage = new Stage($id, $result['date_debut'], $result['date_fin']);
+            $stage = new Stage($id, new \DateTime($result['date_debut']),
+                    new \DateTime($result['date_fin']));
             $stage->setEtudiant($this->getEtudiant($result['ref_etudiant']));
             $stage->setMaitreDeStage($this->getPharmacien($result['ref_identification']));
             return $stage;
@@ -82,6 +110,12 @@ class DatabaseAccess {
         }
     }
     
+    /**
+     * 
+     * @param int $id Identificant du questionnaire recherché
+     * @return string
+     * @throws Exception
+     */
     public function getQuestionnaireTitle($id) {
         try{
             $sql = "SELECT libelle FROM questionnaire WHERE id = :id";
@@ -95,6 +129,7 @@ class DatabaseAccess {
                     . 'données durant le chargement des informations du stage.');
         }
     }
+    
     private function _getConnection() {
         return $this->_connection;
     }

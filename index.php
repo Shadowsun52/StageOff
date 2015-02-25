@@ -5,7 +5,6 @@ use Exception;
     try {
         include('init.php');
         $controller = new controller\Controller();
-//        $test = new Etudiant();
         $test = $controller->getStage(312);
     } catch (Exception $ex) {
         echo $ex->getMessage();
