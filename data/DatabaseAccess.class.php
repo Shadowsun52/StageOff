@@ -1,5 +1,9 @@
 <?php
-
+namespace stageOff\data;
+use stageOff\model\Pharmacie;
+use stageOff\model\Pharmacien;
+use stageOff\model\Stage;
+use stageOff\model\Etudiant;
 /**
  * Description of DatabaseAccess
  *

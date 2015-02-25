@@ -1,4 +1,6 @@
 <?php
+namespace stageOff\controller;
+use stageOff\data\DatabaseAccess;
 
 /**
  * Description of Controller

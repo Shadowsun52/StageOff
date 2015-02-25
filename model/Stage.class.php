@@ -1,4 +1,5 @@
 <?php
+namespace stageOff\model;
 
 /**
  * Description of Stage

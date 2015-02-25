@@ -1,5 +1,7 @@
 <?php
-
+namespace stageOff\data;
+use stageOff\model\config;
+use PDO;
 /**
  * Description of PDO2
  *

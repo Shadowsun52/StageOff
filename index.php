@@ -1,7 +1,11 @@
 <?php
+namespace stageOff;
+use Exception;
+
     try {
         include('init.php');
-        $controller = new Controller();
+        $controller = new controller\Controller();
+//        $test = new Etudiant();
         $test = $controller->getStage(312);
     } catch (Exception $ex) {
         echo $ex->getMessage();
@@ -15,7 +19,7 @@
     </head>
     <body>
         <?php
-            echo $test->getMaitreDeStage()->getLastname();
+        var_dump($test);
         ?>
     </body>
 </html>

@@ -1,8 +1,7 @@
 <?php
-    require_once 'model/config.class.php';
-    require_once 'controller/Autoloader.class.php';
+    namespace stageOff;
     
-    $autoloader = new Autoloader('model');
-    $autoloader->addRepertory('data');  
-    $autoloader->addRepertory('controller');
-    $autoloader->addRepertory('phpExcel');
+    require_once 'model/config.class.php';
+    require_once 'Autoloader.class.php';
+    
+    Autoloader::register();
