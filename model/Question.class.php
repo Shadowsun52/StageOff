@@ -31,8 +31,8 @@ class Question {
      * 
      * @param int $id Identifiant dans la base de données de la question
      * @param string $libelle Libelle de la question
-     * @param array[string] $proposition Proposition possible pour la question
-     * @param array[Questionnement] $questionnement Les différents questionnement de la question
+     * @param array[string] $propositions Proposition possible pour la question
+     * @param array[Questionnement] $questionnements Les différents questionnement de la question
      */
     public function __construct($id=NULL, $libelle=NULL, $propositions=NULL, 
             $questionnements=NULL) {

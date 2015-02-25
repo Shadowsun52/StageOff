@@ -4,6 +4,8 @@ use stageOff\model\Pharmacie;
 use stageOff\model\Pharmacien;
 use stageOff\model\Stage;
 use stageOff\model\Etudiant;
+use stageOff\model\Questionnaire;
+use \Exception;
 /**
  * Description of DatabaseAccess
  *
@@ -113,20 +115,22 @@ class DatabaseAccess {
     /**
      * 
      * @param int $id Identificant du questionnaire recherché
-     * @return string
+     * @return Questionnaire
      * @throws Exception
      */
-    public function getQuestionnaireTitle($id) {
+    public function getQuestionnaire($id) {
         try{
             $sql = "SELECT libelle FROM questionnaire WHERE id = :id";
             $request = $this->_getConnection()->prepare($sql);
             $request->execute(array(':id' => $id));
             $result = $request->fetch(\PDO::FETCH_ASSOC);
             
-            return $result['libelle'];
+            $questionnaire = new Questionnaire($id, $result['libelle']);
+            //lire question 
+            return $questionnaire;
         } catch (Exception $ex) {
             throw new Exception ('Erreur lors de la lecture dans la base de '
-                    . 'données durant le chargement des informations du stage.');
+                    . 'données durant le chargement du questionnaire.');
         }
     }
     
