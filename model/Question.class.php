@@ -36,7 +36,10 @@ class Question {
      */
     public function __construct($id=NULL, $libelle=NULL, $propositions=NULL, 
             $questionnements=NULL) {
-        
+        $this->setId($id);
+        $this->setLibelle($libelle);
+        $this->setPropositions($propositions);
+        $this->setQuestionnements($questionnements);
     }
     
     /**
