@@ -1,5 +1,7 @@
 <?php
 namespace stageOff\business;
+use stageOff\data\DatabaseAccess;
+use stageOff\model\Stage;
 
 /**
  * Description of Document
@@ -24,6 +26,12 @@ abstract class Document {
     private $_Stage;
     
     /**
+     *
+     * @var int
+     */
+//    private $_id_questionnaire;
+    
+    /**
      * @var DatabaseAccess 
      */
     private $_db_access;
@@ -40,26 +48,28 @@ abstract class Document {
     }
     
     protected function initExcelDoc() {
-        $this->setExcelDoc(new PHPExcel());
+        $this->setExcelDoc(new \PHPExcel());
     }
     
     /**
      * 
-     * @param int $id_questionnaire identifiant du questionnaire
      * @param int $index_sheet index de la nouvelle feuille excel
      * @throws Exception
      */
-    protected function createSheet($id_questionnaire, $index_sheet=0) {
+    protected function createSheet($index_sheet=0) {
+        $this->getExcelDoc()->createSheet();
+        $this->getExcelDoc()->setActiveSheetIndex($index_sheet);
+    }
+    
+    protected function saveDocument($id_questionnaire) {
         if(empty($id_questionnaire))
         {
             throw new Exception("Aucun questionnaire selectionné");
         }
-        $this->getExcelDoc()->createSheet();
-        $this->getExcelDoc()->setActiveSheetIndex($index_sheet);
-        $this->getCurrentSheet()->setTitle(
-                $this->getDbAccess()->getQuestionnaireTitle($id_questionnaire));
+        $writer = new \PHPExcel_Writer_Excel2007($objPHPExcel);
+        $writer->save(str_replace('.php', '.xlsx', __FILE__));
     }
-    
+
 //<editor-fold defaultstate="collapsed" desc="writer">
     protected function writeLogo() {
         

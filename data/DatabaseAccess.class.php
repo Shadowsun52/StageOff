@@ -121,7 +121,7 @@ class DatabaseAccess {
             $sql = "SELECT libelle FROM questionnaire WHERE id = :id";
             $request = $this->_getConnection()->prepare($sql);
             $request->execute(array(':id' => $id));
-            $result = $request->fetch();
+            $result = $request->fetch(\PDO::FETCH_ASSOC);
             
             return $result['libelle'];
         } catch (Exception $ex) {

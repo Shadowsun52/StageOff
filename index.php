@@ -6,6 +6,7 @@ use Exception;
         include('init.php');
         $controller = new controller\Controller();
         $test = $controller->getStage(312);
+        $excel = new business\DocumentTest(1,312);
     } catch (Exception $ex) {
         echo $ex->getMessage();
     }
@@ -18,7 +19,7 @@ use Exception;
     </head>
     <body>
         <?php
-        var_dump($test);
+            var_dump($test);
         ?>
     </body>
 </html>
