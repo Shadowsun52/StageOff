@@ -22,8 +22,8 @@ class Controller {
      * @param int $id Identifiant du stage recherché
      * @return type
      */
-    public function getStage($id) {
-        return $this->_getDbAccess()->getStage($id);
+    public function getStage($id, $questionnaire = NULL) {
+        return $this->_getDbAccess()->getStage($id, $questionnaire);
     }
 
     /**

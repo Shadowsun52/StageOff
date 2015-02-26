@@ -5,7 +5,7 @@ use Exception;
     try {
         include('init.php');
         $controller = new controller\Controller();
-        $test = $controller->getStage(312);
+        $test = $controller->getStage(127,1);
         $excel = new business\DocumentTest(1,312);
     } catch (Exception $ex) {
         echo $ex->getMessage();
@@ -21,6 +21,7 @@ use Exception;
         <?php
             var_dump($test);
             $data = new data\DatabaseAccess();
+            echo "<p>_________________________________</p>";
             var_dump($data->getQuestionnaire(1, 127));
         ?>
     </body>

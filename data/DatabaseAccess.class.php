@@ -93,10 +93,11 @@ class DatabaseAccess {
     /**
      * 
      * @param int $id Identifiant du stage à retourner
+     * @param int $questionnaire Identifiant du questionnaire à charger pour le stage
      * @return Stage
      * @throws Exception
      */
-    public function getStage($id) {
+    public function getStage($id, $questionnaire = NULL) {
         try {
             $sql = "SELECT ref_identification, ref_etudiant, date_debut, date_fin "
                     . "FROM stage WHERE id = :id";
@@ -108,10 +109,46 @@ class DatabaseAccess {
                     new \DateTime($result['date_fin']));
             $stage->setEtudiant($this->getEtudiant($result['ref_etudiant']));
             $stage->setMaitreDeStage($this->getPharmacien($result['ref_identification']));
+            var_dump($questionnaire);
+            if($questionnaire === NULL)
+            {
+                $stage->setQuestionnaires($this->getQuestionnairesForStage($id));
+            }
+            else
+            {
+                $stage->addQuestionnaire($this->getQuestionnaire($questionnaire, $id));
+            }
             return $stage;
         } catch (Exception $ex) {
             throw new Exception ('Erreur lors de la lecture dans la base de '
                     . 'données durant le chargement des informations du stage.');
+        }
+    }
+    
+    /**
+     * 
+     * @param int $id_stage
+     * @return array[Questionnaire]
+     * @throws Exception
+     */
+    public function getQuestionnairesForStage($id_stage) {
+        try{
+            $sql = "SELECT q.id, q.libelle FROM questionnaire q " .
+                    "JOIN evaluation e ON e.ref_questionnaire = q.id ". 
+                    "WHERE e.ref_stage = :stage GROUP BY q.id";
+            $request = $this->_getConnection()->prepare($sql);
+            $request->execute(array(':stage' => $id_stage));
+            
+            foreach ($request->fetchAll(\PDO::FETCH_ASSOC) as $result)
+            {
+                $questionnaires[] = new Questionnaire($result['id'], $result['libelle'],
+                        $this->getQuestionForQuestionnaire($result['id'], $id_stage));
+            }
+            return isset($questionnaires) ? $questionnaires : NULL;
+            
+        } catch (Exception $ex) {
+            throw new Exception ('Erreur lors de la lecture dans la base de '
+                    . 'données durant le chargement du questionnaire.');
         }
     }
     
@@ -158,11 +195,10 @@ class DatabaseAccess {
                 $propositions = explode(self::SEPARATOR, $sql_question['propositions']);
                 $questionnements = $this->getQuestionnementForQuestion(
                         $sql_question['questionnement'], $id_stage, $id_questionnaire, $i++);     
-                $question = new Question($sql_question['id'], $sql_question['libelle'], 
+                $questions[] = new Question($sql_question['id'], $sql_question['libelle'], 
                         $propositions, $questionnements);
-                $questions[] = $question;
-            }            
-            return $questions;
+            }
+            return (isset($questions)) ? $questions : NULL;
         } catch (Exception $ex) {
             throw new Exception ('Erreur lors de la lecture dans la base de '
                     . 'données durant le chargement des questions.');
@@ -198,10 +234,9 @@ class DatabaseAccess {
         foreach ($libelles as $libelle)
         {
             $result = $request->fetch(\PDO::FETCH_ASSOC);
-            $questionnement = new Questionnement($libelle, $result['proposition']);
-            $questionnements[] = $questionnement;
+            $questionnements[] = new Questionnement($libelle, $result['proposition']);
         }
-        return $questionnements;
+        return (isset($questionnements))? $questionnements : NULL;
     }
     
     private function _getConnection() {
