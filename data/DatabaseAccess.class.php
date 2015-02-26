@@ -5,6 +5,8 @@ use stageOff\model\Pharmacien;
 use stageOff\model\Stage;
 use stageOff\model\Etudiant;
 use stageOff\model\Questionnaire;
+use stageOff\model\Question;
+use stageOff\model\Questionnement;
 use \Exception;
 /**
  * Description of DatabaseAccess
@@ -12,6 +14,7 @@ use \Exception;
  * @author Alexandre
  */
 class DatabaseAccess {
+    const SEPARATOR = '#';
     /**
      * @var PDO2 instance d'une connexion object PDO
      */
@@ -114,24 +117,91 @@ class DatabaseAccess {
     
     /**
      * 
-     * @param int $id Identificant du questionnaire recherché
+     * @param int $id Identifiant du questionnaire recherché
+     * @param int $id_stage Identifiant du stage auquelle le questionnaire est lié
      * @return Questionnaire
      * @throws Exception
      */
-    public function getQuestionnaire($id) {
+    public function getQuestionnaire($id, $id_stage) {
         try{
             $sql = "SELECT libelle FROM questionnaire WHERE id = :id";
             $request = $this->_getConnection()->prepare($sql);
             $request->execute(array(':id' => $id));
             $result = $request->fetch(\PDO::FETCH_ASSOC);
             
-            $questionnaire = new Questionnaire($id, $result['libelle']);
-            //lire question 
+            $questionnaire = new Questionnaire($id, $result['libelle'], 
+                    $this->getQuestionForQuestionnaire($id, $id_stage));
             return $questionnaire;
         } catch (Exception $ex) {
             throw new Exception ('Erreur lors de la lecture dans la base de '
                     . 'données durant le chargement du questionnaire.');
         }
+    }
+
+    /**
+     * 
+     * @param int $id_questionnaire identifiant de la base de données du questionnaire
+     * @param int $id_stage Identifiant du stage auquelle le questionnaire est lié
+     * @return array[Question] retourne sous forme de tableau toute questions du questionnaire 
+     * @throws Exception
+     */
+    public function getQuestionForQuestionnaire($id_questionnaire, $id_stage) {
+        try {
+            $sql = "SELECT q.id, q.libelle, q.questionnement, p.libelle as 'propositions' " .
+                    "FROM question q JOIN proposition p ON q.ref_proposition = p.id " .
+                    "WHERE q.ref_questionnaire = :ref_questionnaire";
+            $request = $this->_getConnection()->prepare($sql);
+            $request->execute(array(':ref_questionnaire' => $id_questionnaire));
+            $i = 1;
+            foreach($request->fetchAll(\PDO::FETCH_ASSOC) as $sql_question)
+            {
+                $propositions = explode(self::SEPARATOR, $sql_question['propositions']);
+                $questionnements = $this->getQuestionnementForQuestion(
+                        $sql_question['questionnement'], $id_stage, $id_questionnaire, $i++);     
+                $question = new Question($sql_question['id'], $sql_question['libelle'], 
+                        $propositions, $questionnements);
+                $questions[] = $question;
+            }            
+            return $questions;
+        } catch (Exception $ex) {
+            throw new Exception ('Erreur lors de la lecture dans la base de '
+                    . 'données durant le chargement des questions.');
+        }
+    }
+    
+    /**
+     * 
+     * @param string $liste Libelle des questionnements lié à la question sous
+     * forme d'une liste en string
+     * @param int $id_stage Identifiant du stage pour lequel on récupère les informations
+     * @param int $id_questionnaire Identifiant du questionnaire auquel est liée la question
+     * @param int $id_question Identifiant de la question auquel sont liés les questionnements
+     * @return array[Questionnement]
+     */
+    private function getQuestionnementForQuestion($liste, $id_stage, 
+            $id_questionnaire, $id_question) {
+        if($liste === '0')
+        {
+            $libelles[] =  null;
+        }
+        else
+        {
+            $libelles = explode(self::SEPARATOR, $liste);
+        }
+        $sql = "SELECT proposition FROM evaluation WHERE ref_stage= :stage AND "
+                . "ref_questionnaire = :questionnaire AND question = :question "
+                . "ORDER BY questionnement ASC";
+        $request = $this->_getConnection()->prepare($sql);
+        $request->execute(array(':stage' => $id_stage, 
+                                ':questionnaire' => $id_questionnaire,
+                                ':question' => $id_question));
+        foreach ($libelles as $libelle)
+        {
+            $result = $request->fetch(\PDO::FETCH_ASSOC);
+            $questionnement = new Questionnement($libelle, $result['proposition']);
+            $questionnements[] = $questionnement;
+        }
+        return $questionnements;
     }
     
     private function _getConnection() {

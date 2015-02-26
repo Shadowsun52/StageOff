@@ -20,6 +20,8 @@ use Exception;
     <body>
         <?php
             var_dump($test);
+            $data = new data\DatabaseAccess();
+            var_dump($data->getQuestionnaire(1, 127));
         ?>
     </body>
 </html>
