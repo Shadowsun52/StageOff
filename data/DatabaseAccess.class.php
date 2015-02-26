@@ -109,7 +109,6 @@ class DatabaseAccess {
                     new \DateTime($result['date_fin']));
             $stage->setEtudiant($this->getEtudiant($result['ref_etudiant']));
             $stage->setMaitreDeStage($this->getPharmacien($result['ref_identification']));
-            var_dump($questionnaire);
             if($questionnaire === NULL)
             {
                 $stage->setQuestionnaires($this->getQuestionnairesForStage($id));

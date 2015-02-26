@@ -55,4 +55,8 @@ abstract class Person {
     public function setLastName($lastname) {
         $this->_lastname = $lastname;
     }
+    
+    public function __toString() {
+        return $this->getFirstname() . ' ' . $this->getLastName();
+    }
 }

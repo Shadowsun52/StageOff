@@ -1,5 +1,6 @@
 <?php
 namespace stageOff\business;
+use stageOff\model\config;
 use stageOff\data\DatabaseAccess;
 use stageOff\model\Stage;
 
@@ -42,9 +43,16 @@ abstract class Document {
      * @param int $id_stage identifiant du stage 
      */
     public function __construct($id_questionnaire, $id_stage) {
+        if($id_questionnaire === NULL || empty($id_questionnaire)) {
+            throw new Exception("Aucun questionnaire selectionné");
+        }
         $this->setDbAccess();
-        $this->initExcelDoc();
-        $this->createSheet($id_questionnaire);
+        $this->initExcelDoc(); 
+        $this->setStage($this->getDbAccess()->getStage($id_stage, $id_questionnaire));
+        $this->createSheet();
+        $this->goFirstLine();
+        $this->writeDocument();
+        $this->saveDocument();
     }
     
     protected function initExcelDoc() {
@@ -61,18 +69,26 @@ abstract class Document {
         $this->getExcelDoc()->setActiveSheetIndex($index_sheet);
     }
     
-    protected function saveDocument($id_questionnaire) {
-        if(empty($id_questionnaire))
-        {
-            throw new Exception("Aucun questionnaire selectionné");
-        }
-        $writer = new \PHPExcel_Writer_Excel2007($objPHPExcel);
-        $writer->save(str_replace('.php', '.xlsx', __FILE__));
+    protected function writeDocument() {
+        $this->writeLogo();
+    }
+
+    protected function saveDocument() {
+        $writer = new \PHPExcel_Writer_Excel2007($this->getExcelDoc());
+        echo $this->getStage()->getEtudiant();
+        $writer->save(config::read('ROOT') . 'evaluation/' . $this->getStage()->getEtudiant(). '.xlsx');
     }
 
 //<editor-fold defaultstate="collapsed" desc="writer">
     protected function writeLogo() {
-        
+        $objDrawing = new \PHPExcel_Worksheet_Drawing();
+        $objDrawing->setName('logo ULB');
+        $objDrawing->setDescription('logo ULB');
+        $objDrawing->setPath(config::read('ROOT') . 'images/logo_ulb.png');
+        $objDrawing->setHeight(100);
+        $objDrawing->setCoordinates('A1');
+        $objDrawing->setOffsetX(-10);
+        $objDrawing->setWorksheet($this->getCurrentSheet());
     }
 //</editor-fold>
 
