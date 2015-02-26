@@ -35,6 +35,12 @@ class Stage {
     private $_end_date;
     
     /**
+     *
+     * @var array[Questionnaire] Les informations pour chaque questionnaire lié au stagiaire
+     */
+    private $_questionnaires;
+    
+    /**
      * 
      * @param int $id Identifiant du stage
      * @param DateTime $start_date Date de Début du stage
@@ -43,12 +49,13 @@ class Stage {
      * @param Pharmacien $maitre_de_stage Pharmacien supervisant l'étudiant
      */
     public function __construct($id=NULL, $start_date=NULL, $end_date=NULL, 
-            $etudiant=NULL, $maitre_de_stage=NULL) {
+            $etudiant=NULL, $maitre_de_stage=NULL, $questionnaires=NULL) {
         $this->setId($id);
         $this->setEtudiant($etudiant);
         $this->setMaitreDeStage($maitre_de_stage);
         $this->setStartDate($start_date);
         $this->setEndDate($end_date);
+        $this->setQuestionnaires($questionnaires);
     }
     
     /**
@@ -175,5 +182,45 @@ class Stage {
         {
             return $this->getEndDate()->format($format);
         }
+    }
+    
+    /**
+     * 
+     * @return array[Questionnaire]
+     */
+    public function getQuestionnaires() {
+        return $this->_questionnaires;
+    }
+    
+    /**
+     * 
+     * @param array['Questionnaire'] $questionnaires
+     */
+    public function setQuestionnaires($questionnaires) {
+        $this->_questionnaires = $questionnaires;
+    }
+    
+    /**
+     * 
+     * @param int $id identifiant du questionnaire
+     * @return Questionnaire
+     */
+    public function getQuestionnaireById($id) {
+        foreach ($this->getQuestionnaires() as $questionnaire)
+        {
+            if($questionnaire->getId() == $id)
+            {
+                return $questionnaire;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * 
+     * @param Questionnaire $questionnaire
+     */
+    public function addQuestionnaire($questionnaire) {
+        $this->_questionnaires[] = $questionnaire;
     }
 }
