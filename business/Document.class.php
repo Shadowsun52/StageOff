@@ -12,6 +12,8 @@ use stageOff\model\Stage;
 abstract class Document {
     const FIRST_LINE = 7;
     const SPACE_WITH_TITLE = 2;
+    const FIRST_COL_PROPOSITION = 'B';
+    const FIRST_COL_PROPOSITION_UNIQUE = 'A';
     
     /**
      * @var PHPExcel objet document excel 
@@ -107,8 +109,12 @@ abstract class Document {
         $this->writeLogo();
         $this->writeTitle($id_questionnaire);
         $this->writeStageInfo();
+        $this->writeAllQuestions($id_questionnaire);
     }
     
+    /**
+     * Ajoute le logo au début de la page excel
+     */
     protected function writeLogo() {
         $objDrawing = new \PHPExcel_Worksheet_Drawing();
         $objDrawing->setName('logo ULB');
@@ -120,12 +126,19 @@ abstract class Document {
         $objDrawing->setWorksheet($this->getCurrentSheet());
     }
     
+    /**
+     * Ecrit le nom du questionnaire dans le fichier excel
+     * @param int $id_questionnaire
+     */
     protected function writeTitle($id_questionnaire) {
         $this->getCurrentSheet()->setCellValue(
                 'A'.$this->moveCurrentLine(self::SPACE_WITH_TITLE),
                 $this->getStage()->getQuestionnaireById($id_questionnaire)->getTitle());
     }
     
+    /**
+     * Ecrit les informations sur le stage dans le fichier  excel 
+     */
     protected function writeStageInfo() {
         $this->getCurrentSheet()->setCellValue('A' . $this->getCurrentLine(), 
                 "Nom Du Stagiare");
@@ -136,6 +149,94 @@ abstract class Document {
         $this->getCurrentSheet()->setCellValue('B' . $this->moveCurrentLine(),
                 ''.$this->getStage()->getMaitreDeStage());
     }
+    
+    /**
+     * Ecrit toute les questions d'un questionnaire dans le fichier excel
+     * @param int $id_questionnaire
+     */
+    protected  function writeAllQuestions($id_questionnaire) {
+        $number_question = 1;
+        $this->moveCurrentLine();
+        foreach ($this->getStage()->getQuestionnaireById($id_questionnaire)->getQuestions() as $question) {
+            $this->writeQuestion($question, $number_question++);
+        }
+    }
+    
+    /**
+     * Ecrit une question dans le fichier excel
+     * @param Question $question
+     * @param int $number_question Numéro de la question
+     */
+    protected function writeQuestion($question, $number_question) {
+        $this->getCurrentSheet()->setCellValue('A' . $this->moveCurrentLine(),
+                $number_question . '. ' . $question->getLibelle());
+        $this->writePropositions($question);
+        $this->writeQuestionnements($question);
+    }
+    
+    /**
+     * Ecrit les propositions d'une question dans le fichier excel
+     * @param Question $question
+     */
+    protected function writePropositions($question) {
+        if(count($question->getQuestionnements()) == 1)
+        {
+            $col = self::FIRST_COL_PROPOSITION_UNIQUE;
+        }
+        else
+        {
+            $col = self::FIRST_COL_PROPOSITION; 
+        }
+        
+        foreach ($question->getPropositions() as $proposition)
+        {
+            $this->getCurrentSheet()->setCellValue(($col++) . $this->getCurrentLine(),
+                    $proposition);
+        }
+        $this->moveCurrentLine();
+    }
+
+    /**
+     * Ecrit les questionnements d'une question et le résultat associé
+     * @param Question $question
+     */
+    protected function writeQuestionnements($question) {
+        if(count($question->getQuestionnements()) == 1)
+        {
+            $col = self::FIRST_COL_PROPOSITION_UNIQUE;
+        }
+        else
+        {
+            $col = self::FIRST_COL_PROPOSITION; 
+        }
+        foreach ($question->getQuestionnements() as $questionnement) {
+            $this->getCurrentSheet()->setCellValue('A' . $this->getCurrentLine(),
+                    $questionnement->getLibelle());
+            $this->getCurrentSheet()->setCellValue(
+                    $this->getColResult($questionnement, 
+                            $question->getPropositions(), $col) .
+                    $this->moveCurrentLine(),
+                    'X');
+        }
+        $this->moveCurrentLine();
+    }
+    
+    /**
+     * Retourne la colonne du resultat obtenu pour le questionnement
+     * @param Questionnement $questionnement
+     * @param Array[Proposition] $propositions
+     * @param string $col premier colonne des propositions
+     * @return String
+     */
+    protected function getColResult($questionnement, $propositions, $col) {
+        for($i = 0; $i < count($propositions) 
+                && $questionnement->getResult() != $propositions[$i]; $i++)
+        {
+                    $col++;
+        }
+        return $col;
+    }
+
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="getter&setter">
