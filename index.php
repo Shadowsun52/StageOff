@@ -4,8 +4,6 @@ use Exception;
 
     try {
         include('init.php');
-        $controller = new controller\Controller();
-        $test = $controller->getStage(127,1);
         $excel = new business\DocumentMds(1,942);
     } catch (Exception $ex) {
         echo $ex->getMessage();
