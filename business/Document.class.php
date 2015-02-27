@@ -11,6 +11,8 @@ use stageOff\model\Stage;
  */
 abstract class Document {
     const FIRST_LINE = 7;
+    const SPACE_WITH_TITLE = 2;
+    
     /**
      * @var PHPExcel objet document excel 
      */
@@ -51,7 +53,7 @@ abstract class Document {
         $this->setStage($this->getDbAccess()->getStage($id_stage, $id_questionnaire));
         $this->createSheet();
         $this->goFirstLine();
-        $this->writeDocument();
+        $this->writeDocument($id_questionnaire);
         $this->saveDocument();
     }
     
@@ -68,11 +70,8 @@ abstract class Document {
         $this->getExcelDoc()->createSheet();
         $this->getExcelDoc()->setActiveSheetIndex($index_sheet);
     }
-    
-    protected function writeDocument() {
-        $this->writeLogo();
-    }
 
+//<editor-fold defaultstate="collapsed" desc="Save File">
     protected function saveDocument() {
         $writer = new \PHPExcel_Writer_Excel2007($this->getExcelDoc());
         $writer->save(config::read('ROOT') . 'evaluation/' . $this->getFileName(). '.xlsx');
@@ -96,8 +95,15 @@ abstract class Document {
         $str = preg_replace('#&([A-za-z]{2})(?:lig);#', '\1', $str); // pour les ligatures e.g. '&oelig;'
         return preg_replace('#&[^;]+;#', '', $str); // supprime les autres caractères
     }
-    
+//</editor-fold>
+
 //<editor-fold defaultstate="collapsed" desc="writer">
+    protected function writeDocument($id_questionnaire) {
+        $this->writeLogo();
+        $this->writeTitle($id_questionnaire);
+        $this->writeStageInfo();
+    }
+    
     protected function writeLogo() {
         $objDrawing = new \PHPExcel_Worksheet_Drawing();
         $objDrawing->setName('logo ULB');
@@ -107,6 +113,23 @@ abstract class Document {
         $objDrawing->setCoordinates('A1');
         $objDrawing->setOffsetX(-10);
         $objDrawing->setWorksheet($this->getCurrentSheet());
+    }
+    
+    protected function writeTitle($id_questionnaire) {
+        $this->getCurrentSheet()->setCellValue(
+                'A'.$this->moveCurrentLine(self::SPACE_WITH_TITLE),
+                $this->getStage()->getQuestionnaireById($id_questionnaire)->getTitle());
+    }
+    
+    protected function writeStageInfo() {
+        $this->getCurrentSheet()->setCellValue('A' . $this->getCurrentLine(), 
+                "Nom Du Stagiare");
+        $this->getCurrentSheet()->setCellValue('B' . $this->moveCurrentLine(),
+                $this->getStage()->getEtudiant().'');
+        $this->getCurrentSheet()->setCellValue('A' . $this->getCurrentLine(),
+                "Nom du maitre de stage");
+        $this->getCurrentSheet()->setCellValue('B' . $this->moveCurrentLine(),
+                ''.$this->getStage()->getMaitreDeStage());
     }
 //</editor-fold>
 

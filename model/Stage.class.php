@@ -7,7 +7,7 @@ namespace stageOff\model;
  * @author Alexandre
  */
 class Stage {
-    const DEFAULT_DATE_FORMAT = 'd-m-y' ; 
+    const DEFAULT_DATE_FORMAT = 'd-m-Y' ; 
     
     /**
      * @var int Identifiant dans la base de données du stage 
@@ -182,6 +182,11 @@ class Stage {
         {
             return $this->getEndDate()->format($format);
         }
+    }
+    
+    public function getPeriode($format=NULL) {
+        return 'du ' . $this->getStartDateFormat($format) . ' au ' . 
+                $this->getEndDateFormat($format);
     }
     
     /**
