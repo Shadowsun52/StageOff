@@ -54,7 +54,7 @@ abstract class Document {
         $this->createSheet();
         $this->goFirstLine();
         $this->writeDocument($id_questionnaire);
-        $this->saveDocument();
+        $this->saveDocument($id_questionnaire);
     }
     
     protected function initExcelDoc() {
@@ -72,16 +72,21 @@ abstract class Document {
     }
 
 //<editor-fold defaultstate="collapsed" desc="Save File">
-    protected function saveDocument() {
+    /**
+     * 
+     * @param int $id_questionnaire
+     */
+    protected function saveDocument($id_questionnaire) {
         $writer = new \PHPExcel_Writer_Excel2007($this->getExcelDoc());
-        $writer->save(config::read('ROOT') . 'evaluation/' . $this->getFileName(). '.xlsx');
+        $writer->save(config::read('ROOT') . 'evaluation/' . 
+                $this->getFileName($id_questionnaire) . '.xlsx');
     }
 
     /**
-     * 
+     * @param int $id_questionnaire 
      * @return String Nom du fichier créer
      */
-    abstract protected function getFileName();
+    abstract protected function getFileName($id_questionnaire);
 
 
     /**

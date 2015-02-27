@@ -184,11 +184,26 @@ class Stage {
         }
     }
     
+    /**
+     * 
+     * @param string $format Format de la date à retourner
+     * @return string
+     */
     public function getPeriode($format=NULL) {
         return 'du ' . $this->getStartDateFormat($format) . ' au ' . 
                 $this->getEndDateFormat($format);
     }
     
+    /**
+     * retourne un string contenant la durée du stage en nombre de jour sous le 
+     * format suivant : (XX jours)
+     * @return string
+     */
+    public function getDuree() {
+        $interval = $this->getStartDate()->diff($this->getEndDate());
+        return '(' . $interval->days . 'jours)';
+    }
+
     /**
      * 
      * @return array[Questionnaire]
