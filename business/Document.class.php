@@ -46,6 +46,28 @@ abstract class Document {
                             'vertical' => \PHPExcel_Style_Alignment::VERTICAL_CENTER,
                         )
                     );
+    
+    private $STYLE_PROPOSITION = array(
+                            'borders'  => array(
+                                'allborders' => array(
+                                    'style' => \PHPExcel_style_Border::BORDER_THIN
+                                )
+                            ),
+                            'alignment' => array(
+                                'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER
+                            )
+                        );
+    
+    private $STYLE_QUESTIONNEMENT = array(
+                            'borders' => array(
+                                'allborders' => array(
+                                    'style' => \PHPExcel_Style_Border::BORDER_THIN
+                                )
+                            ),
+                            'alignment' =>array(
+                                'vertical' => \PHPExcel_Style_Alignment::VERTICAL_CENTER
+                            )
+                        );
     /**
      * @var PHPExcel objet document excel 
      */
@@ -141,7 +163,7 @@ abstract class Document {
     protected function setColWidth() {
         $this->getCurrentSheet()->getColumnDimension('A')->setWidth(36);
         for($col = 'B'; $col <= 'E'; $col++) {
-            $this->getCurrentSheet()->getColumnDimension($col)->setWidth(9);
+            $this->getCurrentSheet()->getColumnDimension($col)->setWidth(10);
         }
         $this->getCurrentSheet()->getColumnDimension('F')->setWidth(11);
         $this->getCurrentSheet()->getColumnDimension('G')->setWidth(7);
@@ -248,19 +270,16 @@ abstract class Document {
      * @param Question $question
      */
     protected function writePropositions($question) {
-        if(count($question->getQuestionnements()) == 1)
-        {
-            $col = self::FIRST_COL_PROPOSITION_UNIQUE;
-        }
-        else
-        {
-            $col = self::FIRST_COL_PROPOSITION; 
-        }
+        $col = self::FIRST_COL_PROPOSITION; 
         
         foreach ($question->getPropositions() as $proposition)
         {
-            $this->getCurrentSheet()->setCellValue(($col++) . $this->getCurrentLine(),
+            $this->getCurrentSheet()->setCellValue($col . $this->getCurrentLine(),
                     $proposition);
+            $this->getCurrentSheet()->getStyle($col . $this->getCurrentLine())
+                    ->applyFromArray($this->STYLE_PROPOSITION);
+            $this->getCurrentSheet()->getStyle(($col++) . $this->getCurrentLine())
+                        ->getAlignment()->setWrapText(true);
         }
         $this->moveCurrentLine();
     }
@@ -270,24 +289,26 @@ abstract class Document {
      * @param Question $question
      */
     protected function writeQuestionnements($question) {
-        if(count($question->getQuestionnements()) == 1)
+        $col = self::FIRST_COL_PROPOSITION;
+        if($question->getQuestionnement(0)->getLibelle() !== NULL)
         {
-            $col = self::FIRST_COL_PROPOSITION_UNIQUE;
+            $this->getCurrentSheet()->getStyle('A' . ($this->getCurrentLine()-1))
+                        ->applyFromArray($this->STYLE_QUESTIONNEMENT);
+            foreach ($question->getQuestionnements() as $questionnement) {
+                $this->getCurrentSheet()->setCellValue('A' . $this->getCurrentLine(),
+                        $questionnement->getLibelle());
+                $this->getCurrentSheet()->getStyle('A' . $this->getCurrentLine())
+                        ->applyFromArray($this->STYLE_QUESTIONNEMENT);
+                $this->getCurrentSheet()->getStyle('A' . $this->getCurrentLine())
+                        ->getAlignment()->setWrapText(true);
+                $this->getCurrentSheet()->setCellValue(
+                        $this->getColResult($questionnement, 
+                                $question->getPropositions(), $col) .
+                        $this->moveCurrentLine(),
+                        'X');
+            }
+            $this->moveCurrentLine();
         }
-        else
-        {
-            $col = self::FIRST_COL_PROPOSITION; 
-        }
-        foreach ($question->getQuestionnements() as $questionnement) {
-            $this->getCurrentSheet()->setCellValue('A' . $this->getCurrentLine(),
-                    $questionnement->getLibelle());
-            $this->getCurrentSheet()->setCellValue(
-                    $this->getColResult($questionnement, 
-                            $question->getPropositions(), $col) .
-                    $this->moveCurrentLine(),
-                    'X');
-        }
-        $this->moveCurrentLine();
     }
     
     /**
