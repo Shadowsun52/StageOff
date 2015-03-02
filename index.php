@@ -17,8 +17,8 @@ use Exception;
         <title></title>
     </head>
     <body>
-        <?php
-            echo $excel;
-        ?>
+        <a href="<?php echo $excel; ?>">
+            <img src="./images/excel.png" alt="lien vers document Excel"/>
+        <a/>
     </body>
 </html>

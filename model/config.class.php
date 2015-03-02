@@ -37,3 +37,6 @@ Config::write('debug', false);
 $root = $_SERVER['DOCUMENT_ROOT'];
 if (substr($root, -1, 1) == '/') $root = substr($root, 0, -1);
 Config::write('ROOT', $root . dirname($_SERVER["PHP_SELF"]). '/');
+//Chemin relatif jusqu'au projet. càd le dossier ou sous dossier ou se trouve
+// l'ensemble du projet ex: 'stageOff'
+config::write('PATH', '');

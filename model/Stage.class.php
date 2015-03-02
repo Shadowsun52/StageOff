@@ -221,7 +221,7 @@ class Stage {
     }
     
     /**
-     * 
+     * Retourne le questionnaire lié à l'id donné
      * @param int $id identifiant du questionnaire
      * @return Questionnaire
      */
@@ -234,6 +234,15 @@ class Stage {
             }
         }
         return null;
+    }
+    
+    /**
+     * Retourne un questionnaire par rapport à sa position dans le tableau questionnaires
+     * @param int $id position du questionnaire dans le tableau
+     * @return Questionnaire
+     */
+    public function getQuestionnaire($id) {
+        return $this->_questionnaires[0];
     }
     
     /**

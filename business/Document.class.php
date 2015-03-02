@@ -14,6 +14,7 @@ abstract class Document {
     const SPACE_WITH_TITLE = 2;
     const FIRST_COL_PROPOSITION = 'B';
     const FIRST_COL_PROPOSITION_UNIQUE = 'A';
+    const LINK_TO_EXCEL = './evaluation/';
     
     /**
      * @var PHPExcel objet document excel 
@@ -336,7 +337,9 @@ abstract class Document {
      * @return string
      */
     public function getLink() {
-        return '<p>Bientot un  lien ici</p>';
+        return './' . config::read('PATH') . 'evaluation/' .
+                $this->getFileName($this->getStage()->getQuestionnaire(0)->getId()) .
+                '.xlsx';
     }
     //</editor-fold>
 }
