@@ -29,27 +29,30 @@ class DocumentMds extends Document{
     }
     
     protected function writeStageInfo() {
-        parent::writeStageInfo();
+        $first_line = parent::writeStageInfo();
+        $long_line = $this->getCurrentLine();
         $this->getCurrentSheet()->setCellValue('A' . $this->getCurrentLine(),
                 "Durée et Période de stage");
         $this->getCurrentSheet()->setCellValue('B' . $this->moveCurrentLine(),
                 $this->getStage()->getPeriode() . ' ' . $this->getStage()->getDuree());
         $this->getCurrentSheet()->setCellValue('A' . $this->getCurrentLine(),
                 "Pharmacie");
-        
         $this->getCurrentSheet()->setCellValue('B' . $this->getCurrentLine(),
                 "- Adresse :");
-        $this->getCurrentSheet()->setCellValue('C' . $this->moveCurrentLine(),
+        $this->getCurrentSheet()->setCellValue('D' . $this->moveCurrentLine(),
                 $this->getStage()->getMaitreDeStage()->getPharmacie()->getAddress());
         $this->getCurrentSheet()->setCellValue('B' . $this->getCurrentLine(),
                 "- Téléphone/Fax :");
-        $this->getCurrentSheet()->setCellValue('C' . $this->moveCurrentLine(),
+        $this->getCurrentSheet()->setCellValue('D' . $this->moveCurrentLine(),
                 $this->getStage()->getMaitreDeStage()->getPharmacie()->getPhoneNumber() .
                 ' / ' . $this->getStage()->getMaitreDeStage()->getPharmacie()->getFaxNumber());
         $this->getCurrentSheet()->setCellValue('B' . $this->getCurrentLine(),
                 "- Mail :");
-        $this->getCurrentSheet()->setCellValue('C' . $this->moveCurrentLine(),
+        $this->getCurrentSheet()->setCellValue('D' . $this->moveCurrentLine(),
                 $this->getStage()->getMaitreDeStage()->getPharmacie()->getMail());
+        $this->addStyleForStageInfo($first_line);
+        $this->getCurrentSheet()->unmergeCells('B' . $long_line . ':C' . $long_line);
+        $this->getCurrentSheet()->mergeCells('B' . $long_line . ':G' . $long_line);
     }
     
     /**

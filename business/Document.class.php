@@ -10,12 +10,35 @@ use stageOff\model\Stage;
  * @author Alexandre
  */
 abstract class Document {
-    const FIRST_LINE = 7;
+    const FIRST_LINE = 6;
     const SPACE_WITH_TITLE = 2;
     const FIRST_COL_PROPOSITION = 'B';
     const FIRST_COL_PROPOSITION_UNIQUE = 'A';
-    const LINK_TO_EXCEL = './evaluation/';
+    const HEIGHT_INFO_STAGE = 23;
     
+    //style pour le fichier excel
+    private $STYLE_DEFAULT = array(
+                        'font' => array(
+                            'size' => 10,
+                            'name' => 'Verdana'
+                        )
+                    );
+    private $STYLE_TITLE= array(
+                        'font'  => array(
+                            'bold'  => true,
+                            'size'  => 9,
+                            'underline' => 'single'
+                        )
+                    );
+    
+    private $STYLE_INFO = array(
+                        'font'  => array(
+                            'bold'  => true
+                        ),
+                        'alignment' =>array(
+                            'vertical' => \PHPExcel_Style_Alignment::VERTICAL_CENTER
+                        )
+                    );
     /**
      * @var PHPExcel objet document excel 
      */
@@ -56,6 +79,7 @@ abstract class Document {
         $this->setStage($this->getDbAccess()->getStage($id_stage, $id_questionnaire));
         $this->createSheet();
         $this->goFirstLine();
+        $this->setColWidth();
         $this->writeDocument($id_questionnaire);
         $this->saveDocument($id_questionnaire);
     }
@@ -72,6 +96,7 @@ abstract class Document {
     protected function createSheet($index_sheet=0) {
         $this->getExcelDoc()->createSheet();
         $this->getExcelDoc()->setActiveSheetIndex($index_sheet);
+        $this->getCurrentSheet()->duplicateStyleArray($this->STYLE_DEFAULT, 'A1:G200');
     }
 
 //<editor-fold defaultstate="collapsed" desc="Save File">
@@ -106,6 +131,13 @@ abstract class Document {
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="writer">
+    protected function setColWidth() {
+        $this->getCurrentSheet()->getColumnDimension('A')->setWidth(36);
+        for($col = 'B'; $col <= 'G'; $col++) {
+            $this->getCurrentSheet()->getColumnDimension($col)->setWidth(9);
+        }
+    }
+    
     protected function writeDocument($id_questionnaire) {
         $this->writeLogo();
         $this->writeTitle($id_questionnaire);
@@ -121,9 +153,8 @@ abstract class Document {
         $objDrawing->setName('logo ULB');
         $objDrawing->setDescription('logo ULB');
         $objDrawing->setPath(config::read('ROOT') . 'images/logo_ulb.png');
-        $objDrawing->setHeight(100);
+        $objDrawing->setHeight(70);
         $objDrawing->setCoordinates('A1');
-        $objDrawing->setOffsetX(-10);
         $objDrawing->setWorksheet($this->getCurrentSheet());
     }
     
@@ -132,6 +163,8 @@ abstract class Document {
      * @param int $id_questionnaire
      */
     protected function writeTitle($id_questionnaire) {
+        $this->getCurrentSheet()->getStyle('A'. $this->getCurrentLine())
+                ->applyFromArray($this->STYLE_TITLE);
         $this->getCurrentSheet()->setCellValue(
                 'A'.$this->moveCurrentLine(self::SPACE_WITH_TITLE),
                 $this->getStage()->getQuestionnaireById($id_questionnaire)->getTitle());
@@ -141,6 +174,7 @@ abstract class Document {
      * Ecrit les informations sur le stage dans le fichier  excel 
      */
     protected function writeStageInfo() {
+        $first_line = $this->getCurrentLine();
         $this->getCurrentSheet()->setCellValue('A' . $this->getCurrentLine(), 
                 "Nom Du Stagiare");
         $this->getCurrentSheet()->setCellValue('B' . $this->moveCurrentLine(),
@@ -149,8 +183,21 @@ abstract class Document {
                 "Nom du maitre de stage");
         $this->getCurrentSheet()->setCellValue('B' . $this->moveCurrentLine(),
                 ''.$this->getStage()->getMaitreDeStage());
+        return $first_line;
     }
     
+    protected function addStyleForStageInfo($first_line) {
+        for($i = $first_line; $i < $this->getCurrentLine(); $i++)
+        {
+             $this->getCurrentSheet()->mergeCells('B' .$i . ':C' . $i);
+             $this->getCurrentSheet()->getRowDimension($i)
+                     ->setRowHeight(self::HEIGHT_INFO_STAGE);
+             $this->getCurrentSheet()->getStyle('A'. $i)
+                     ->applyFromArray($this->STYLE_INFO);
+             $this->getCurrentSheet()->getStyle('A'.$i.':D'.$i)->getAlignment()
+                     ->setVertical(\PHPExcel_Style_Alignment::VERTICAL_CENTER);
+        }
+    }
     /**
      * Ecrit toute les questions d'un questionnaire dans le fichier excel
      * @param int $id_questionnaire

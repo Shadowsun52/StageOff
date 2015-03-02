@@ -20,7 +20,7 @@ class DocumentEtudiant extends Document{
     }
     
     protected function writeStageInfo() {
-        parent::writeStageInfo();
+        $first_line = parent::writeStageInfo();
         $this->getCurrentSheet()->setCellValue('A' . $this->getCurrentLine(),
                 "Adresse de la pharmacie");
         $this->getCurrentSheet()->setCellValue('B' . $this->moveCurrentLine(),
@@ -29,5 +29,6 @@ class DocumentEtudiant extends Document{
                 "Période(s) de stage");
         $this->getCurrentSheet()->setCellValue('B' . $this->moveCurrentLine(),
                 $this->getStage()->getPeriode());
+        $this->addStyleForStageInfo($first_line);
     }
 }
