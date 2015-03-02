@@ -15,6 +15,7 @@ abstract class Document {
     const FIRST_COL_PROPOSITION = 'B';
     const FIRST_COL_PROPOSITION_UNIQUE = 'A';
     const HEIGHT_INFO_STAGE = 23;
+    const HEIGHT_TITLE_QUESTION = 30;
     
     //style pour le fichier excel
     private $STYLE_DEFAULT = array(
@@ -37,6 +38,12 @@ abstract class Document {
                         ),
                         'alignment' =>array(
                             'vertical' => \PHPExcel_Style_Alignment::VERTICAL_CENTER
+                        )
+                    );
+    
+    private $STYLE_QUESTION_TITLE = array(
+                        'alignment' =>array(
+                            'vertical' => \PHPExcel_Style_Alignment::VERTICAL_CENTER,
                         )
                     );
     /**
@@ -133,9 +140,11 @@ abstract class Document {
 //<editor-fold defaultstate="collapsed" desc="writer">
     protected function setColWidth() {
         $this->getCurrentSheet()->getColumnDimension('A')->setWidth(36);
-        for($col = 'B'; $col <= 'G'; $col++) {
+        for($col = 'B'; $col <= 'E'; $col++) {
             $this->getCurrentSheet()->getColumnDimension($col)->setWidth(9);
         }
+        $this->getCurrentSheet()->getColumnDimension('F')->setWidth(11);
+        $this->getCurrentSheet()->getColumnDimension('G')->setWidth(7);
     }
     
     protected function writeDocument($id_questionnaire) {
@@ -201,7 +210,7 @@ abstract class Document {
     /**
      * Ecrit toute les questions d'un questionnaire dans le fichier excel
      * @param int $id_questionnaire
-     */
+     */ 
     protected  function writeAllQuestions($id_questionnaire) {
         $number_question = 1;
         $this->moveCurrentLine();
@@ -216,12 +225,24 @@ abstract class Document {
      * @param int $number_question Numéro de la question
      */
     protected function writeQuestion($question, $number_question) {
+        $this->addStyleForTitleQuestion();
         $this->getCurrentSheet()->setCellValue('A' . $this->moveCurrentLine(),
                 $number_question . '. ' . $question->getLibelle());
         $this->writePropositions($question);
         $this->writeQuestionnements($question);
     }
     
+    
+    protected function addStyleForTitleQuestion() {
+        $this->getCurrentSheet()->mergeCells('A' . $this->getCurrentLine() . 
+                ':G' . $this->getCurrentLine());
+        $this->getCurrentSheet()->getStyle('A' . $this->getCurrentLine())
+                ->getAlignment()->setWrapText(true);
+        $this->getCurrentSheet()->getStyle('A' . $this->getCurrentLine())
+                ->applyFromArray($this->STYLE_QUESTION_TITLE);
+        $this->getCurrentSheet()->getRowDimension($this->getCurrentLine())
+                ->setRowHeight(self::HEIGHT_TITLE_QUESTION);
+    }
     /**
      * Ecrit les propositions d'une question dans le fichier excel
      * @param Question $question
