@@ -21,20 +21,19 @@ class GeneratorDocument {
      * @return string un lien vers le ficher excel generé
      * @throws Exception
      */
-    public function generateDocument($id_stage, $type) {
+    public static function generateDocument($id_stage, $type) {
         if($type == self::TYPE_STAGIARE) 
         {
             $document = new DocumentEtudiant($id_stage);
-            return $document->getLink();
         }
         elseif($type == self::TYPE_MDS)
         {
-            //recuperer le type de stage (officine ou hospitalier
-            return null;
+            $document = new DocumentMds($id_stage);
         }
         else
         {
             throw new Exception('Type de questionnaire inconnu');
         }
+        return $document->getLink();
     }
 }

@@ -111,7 +111,7 @@ class DatabaseAccess {
             $stage->setMaitreDeStage($this->getPharmacien($result['ref_identification']));
             if($questionnaire === NULL)
             {
-                $stage->setQuestionnaires($this->getQuestionnairesForStage($id));
+                $stage->setQuestionnaires($this->getAllQuestionnairesForStage($id));
             }
             else
             {
@@ -130,7 +130,7 @@ class DatabaseAccess {
      * @return array[Questionnaire]
      * @throws Exception
      */
-    public function getQuestionnairesForStage($id_stage) {
+    public function getAllQuestionnairesForStage($id_stage) {
         try{
             $sql = "SELECT q.id, q.libelle FROM questionnaire q " .
                     "JOIN evaluation e ON e.ref_questionnaire = q.id ". 
@@ -141,7 +141,7 @@ class DatabaseAccess {
             foreach ($request->fetchAll(\PDO::FETCH_ASSOC) as $result)
             {
                 $questionnaires[] = new Questionnaire($result['id'], $result['libelle'],
-                        $this->getQuestionForQuestionnaire($result['id'], $id_stage));
+                        $this->getQuestionsForQuestionnaire($result['id'], $id_stage));
             }
             return isset($questionnaires) ? $questionnaires : NULL;
             
@@ -166,7 +166,7 @@ class DatabaseAccess {
             $result = $request->fetch(\PDO::FETCH_ASSOC);
             
             $questionnaire = new Questionnaire($id, $result['libelle'], 
-                    $this->getQuestionForQuestionnaire($id, $id_stage));
+                    $this->getQuestionsForQuestionnaire($id, $id_stage));
             return $questionnaire;
         } catch (Exception $ex) {
             throw new Exception ('Erreur lors de la lecture dans la base de '
@@ -181,7 +181,7 @@ class DatabaseAccess {
      * @return array[Question] retourne sous forme de tableau toute questions du questionnaire 
      * @throws Exception
      */
-    public function getQuestionForQuestionnaire($id_questionnaire, $id_stage) {
+    public function getQuestionsForQuestionnaire($id_questionnaire, $id_stage) {
         try {
             $sql = "SELECT q.id, q.libelle, q.questionnement, p.libelle as 'propositions' " .
                     "FROM question q JOIN proposition p ON q.ref_proposition = p.id " .
@@ -192,7 +192,7 @@ class DatabaseAccess {
             foreach($request->fetchAll(\PDO::FETCH_ASSOC) as $sql_question)
             {
                 $propositions = explode(self::SEPARATOR, $sql_question['propositions']);
-                $questionnements = $this->getQuestionnementForQuestion(
+                $questionnements = $this->getQuestionnementsForQuestion(
                         $sql_question['questionnement'], $id_stage, $id_questionnaire, $i++);     
                 $questions[] = new Question($sql_question['id'], $sql_question['libelle'], 
                         $propositions, $questionnements);
@@ -213,7 +213,7 @@ class DatabaseAccess {
      * @param int $id_question Identifiant de la question auquel sont liés les questionnements
      * @return array[Questionnement]
      */
-    private function getQuestionnementForQuestion($liste, $id_stage, 
+    private function getQuestionnementsForQuestion($liste, $id_stage, 
             $id_questionnaire, $id_question) {
         if($liste === '0')
         {
@@ -237,7 +237,22 @@ class DatabaseAccess {
         }
         return (isset($questionnements))? $questionnements : NULL;
     }
-    
+
+    /**
+     * Retourne l'id du type d'officine où se déroule le stage
+     * @param int $id_stage identifiant du stage
+     * @return int
+     */
+    public function getTypeOfficine($id_stage) {
+        $sql = "SELECT o.ref_type_officine FROM officine o 
+                JOIN pharmacien p ON p.ref_identification = o.id 
+                JOIN stage s ON s.ref_identification = p.id WHERE s.id = :id_stage";
+        $request = $this->_getConnection()->prepare($sql);
+        $request->execute(array(':id_stage' => $id_stage));
+        $result = $request->fetch(\PDO::FETCH_ASSOC);
+        return $result['ref_type_officine'];
+    }
+
     private function _getConnection() {
         return $this->_connection;
     }

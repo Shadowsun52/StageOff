@@ -1,10 +1,11 @@
 <?php
 namespace stageOff;
+use stageOff\controller\GeneratorDocument;
 use Exception;
 
     try {
         include('init.php');
-        $excel = new business\DocumentMds(1,942);
+        $excel = GeneratorDocument::generateDocument(942,  GeneratorDocument::TYPE_MDS);
     } catch (Exception $ex) {
         echo $ex->getMessage();
     }
@@ -17,7 +18,7 @@ use Exception;
     </head>
     <body>
         <?php
-            var_dump($excel->getStage());
+            echo $excel;
         ?>
     </body>
 </html>

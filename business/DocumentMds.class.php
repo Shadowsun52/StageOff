@@ -9,13 +9,12 @@ use Exception;
 class DocumentMds extends Document{
     const STAGE_OFFINICAL = 1;
     const STAGE_HOSPITALIER = 2;
+    const PHARMACIE_OFFICINAL = 1;
+    const PHARMACIE_HOSPITALIERE = 2;
     
-    public function __construct($id_questionnaire, $id_stage) {
-        if(!$this->questionnaireExist($id_questionnaire))
-        {
-            throw new Exception('Ce questionnaire n\'existe pas.');
-        }
-        parent::__construct($id_questionnaire, $id_stage);
+    public function __construct($id_stage) {
+        $this->setDbAccess();
+        parent::__construct($this->getTypeStage($id_stage), $id_stage);
     }
     
     protected function getFileName($id_questionnaire) {
@@ -62,5 +61,27 @@ class DocumentMds extends Document{
     protected function questionnaireExist($id_questionnaire) {
         return $id_questionnaire == self::STAGE_HOSPITALIER 
                 || $id_questionnaire == self::STAGE_OFFINICAL;
+    }
+    
+    /**
+     * Retourne le type du lieu de stage qui peut etre soit officinal ou hospitalier
+     * @param int $id_stage identifiant du stage
+     * @return int
+     * @throws Exception
+     */
+    protected function getTypeStage($id_stage) {
+        $type_officine = $this->getDbAccess()->getTypeOfficine($id_stage);
+        if($type_officine == self::PHARMACIE_OFFICINAL)
+        {
+            return self::STAGE_OFFINICAL;
+        }
+        elseif($type_officine == self:: PHARMACIE_HOSPITALIERE)
+        {
+            return self::STAGE_HOSPITALIER;
+        }
+        else
+        {
+            throw new Exception('Aucun type de questionnaire trouvé pour ce stage');
+        }
     }
 }

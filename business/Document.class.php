@@ -336,7 +336,7 @@ abstract class Document {
      * @return string
      */
     public function getLink() {
-        return '<p></p>';
+        return '<p>Bientot un  lien ici</p>';
     }
     //</editor-fold>
 }
