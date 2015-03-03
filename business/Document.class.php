@@ -15,6 +15,7 @@ abstract class Document {
     const FIRST_COL_PROPOSITION = 'B';
     const HEIGHT_INFO_STAGE = 23;
     const HEIGHT_TITLE_QUESTION = 30;
+    const HEIGHT_LINE_FOR_PROPOSITION = 15;
     const BIG_PROPOSITION = 16;
     const MAX_PROPOSITION_SIZE = 30;
     
@@ -298,7 +299,9 @@ abstract class Document {
             {
                 $cell .= ':G' . $this->getCurrentLine();
                 $this->getCurrentSheet()->mergeCells($cell);
-                //definir hauteur ligne
+                $this->getCurrentSheet()->getRowDimension($this->getCurrentLine())
+                     ->setRowHeight(self::HEIGHT_LINE_FOR_PROPOSITION *
+                             ceil(strlen($proposition)/self::MAX_PROPOSITION_SIZE));
             }
             $this->getCurrentSheet()->getStyle($cell)
                     ->applyFromArray($this->STYLE_PROPOSITION);
