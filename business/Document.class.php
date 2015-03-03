@@ -64,8 +64,23 @@ abstract class Document {
                                     'style' => \PHPExcel_Style_Border::BORDER_THIN
                                 )
                             ),
-                            'alignment' =>array(
+                            'alignment' => array(
                                 'vertical' => \PHPExcel_Style_Alignment::VERTICAL_CENTER
+                            )
+                        );
+    private $STYLE_RESULT = array(
+                            'borders' => array(
+                                'allborders' => array(
+                                    'style' => \PHPExcel_Style_Border::BORDER_THIN
+                                )
+                            ),
+                            'alignment' => array(
+                                'horizontal' => \PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                                'vertical' => \PHPExcel_Style_Alignment::VERTICAL_CENTER
+                            ),
+                            'font' => array(
+                                'bold' => true,
+                                'size' => 14
                             )
                         );
     /**
@@ -125,6 +140,7 @@ abstract class Document {
     protected function createSheet($index_sheet=0) {
         $this->getExcelDoc()->createSheet();
         $this->getExcelDoc()->setActiveSheetIndex($index_sheet);
+        $this->getCurrentSheet()->setTitle($this->getStage()->getEtudiant().'');
         $this->getCurrentSheet()->duplicateStyleArray($this->STYLE_DEFAULT, 'A1:G200');
     }
 
@@ -162,11 +178,12 @@ abstract class Document {
 //<editor-fold defaultstate="collapsed" desc="writer">
     protected function setColWidth() {
         $this->getCurrentSheet()->getColumnDimension('A')->setWidth(36);
-        for($col = 'B'; $col <= 'E'; $col++) {
-            $this->getCurrentSheet()->getColumnDimension($col)->setWidth(10);
+        $this->getCurrentSheet()->getColumnDimension('B')->setWidth(10);
+        for($col = 'C'; $col <= 'E'; $col++) {
+            $this->getCurrentSheet()->getColumnDimension($col)->setWidth(9);
         }
         $this->getCurrentSheet()->getColumnDimension('F')->setWidth(11);
-        $this->getCurrentSheet()->getColumnDimension('G')->setWidth(7);
+        $this->getCurrentSheet()->getColumnDimension('G')->setWidth(6);
     }
     
     protected function writeDocument($id_questionnaire) {
@@ -289,26 +306,51 @@ abstract class Document {
      * @param Question $question
      */
     protected function writeQuestionnements($question) {
-        $col = self::FIRST_COL_PROPOSITION;
-        if($question->getQuestionnement(0)->getLibelle() !== NULL)
+        if($question->getQuestionnement(0)->getLibelle() === NULL)
+        {
+            $this->writeLineResult($this->getColResult( $question->getQuestionnement(0), 
+                    $question->getPropositions(), self::FIRST_COL_PROPOSITION), 
+                    count($question->getPropositions()));
+        }
+        else
         {
             $this->getCurrentSheet()->getStyle('A' . ($this->getCurrentLine()-1))
                         ->applyFromArray($this->STYLE_QUESTIONNEMENT);
             foreach ($question->getQuestionnements() as $questionnement) {
-                $this->getCurrentSheet()->setCellValue('A' . $this->getCurrentLine(),
-                        $questionnement->getLibelle());
-                $this->getCurrentSheet()->getStyle('A' . $this->getCurrentLine())
-                        ->applyFromArray($this->STYLE_QUESTIONNEMENT);
-                $this->getCurrentSheet()->getStyle('A' . $this->getCurrentLine())
-                        ->getAlignment()->setWrapText(true);
-                $this->getCurrentSheet()->setCellValue(
-                        $this->getColResult($questionnement, 
-                                $question->getPropositions(), $col) .
-                        $this->moveCurrentLine(),
-                        'X');
+                $this->writeLibelleQuestionnement($questionnement->getLibelle());
+                $this->writeLineResult($this->getColResult(
+                        $questionnement, $question->getPropositions(), self::FIRST_COL_PROPOSITION),
+                        count($question->getPropositions()));
             }
-            $this->moveCurrentLine();
         }
+        $this->moveCurrentLine();
+    }
+    
+    /**
+     * 
+     * @param string $libelle libelle du questionnement
+     */
+    protected function writeLibelleQuestionnement($libelle) {
+        $this->getCurrentSheet()->setCellValue('A' . $this->getCurrentLine(), $libelle);
+        $this->getCurrentSheet()->getStyle('A' . $this->getCurrentLine())
+                ->applyFromArray($this->STYLE_QUESTIONNEMENT);
+        $this->getCurrentSheet()->getStyle('A' . $this->getCurrentLine())
+                ->getAlignment()->setWrapText(true);
+}
+
+    /**
+     * 
+     * @param int $col_result position du résultat obtenu pour cette ligne
+     * @param int $nb_propositions nombre de proposition
+     */
+    protected function writeLineResult($col_result, $nb_propositions) {
+        $end_col = self::FIRST_COL_PROPOSITION;
+        for($i=1; $i < $nb_propositions; $end_col++, $i++);
+        $this->getCurrentSheet()->getStyle(self::FIRST_COL_PROPOSITION . 
+                $this->getCurrentLine() . ':' . $end_col . $this->getCurrentLine())
+                ->applyFromArray($this->STYLE_RESULT);
+        $this->getCurrentSheet()->setCellValue($col_result . 
+                $this->moveCurrentLine(), 'X');  
     }
     
     /**
