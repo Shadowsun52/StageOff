@@ -5,7 +5,8 @@ use Exception;
 
     try {
         include('init.php');
-        $excel = GeneratorDocument::generateDocument(942,  GeneratorDocument::TYPE_MDS);
+        GeneratorDocument::generateDocument(942,  GeneratorDocument::TYPE_MDS);
+        $excel = GeneratorDocument::getLinkDocument(942,  GeneratorDocument::TYPE_MDS);
     } catch (Exception $ex) {
         echo $ex->getMessage();
     }

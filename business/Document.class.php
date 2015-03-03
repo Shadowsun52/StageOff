@@ -112,6 +112,11 @@ abstract class Document {
     private $_db_access;
     
     /**
+     * @var int 
+     */
+    private $_id_questionnaire;
+    
+    /**
      * 
      * @param int $id_questionnaire identifiant du questionnaire
      * @param int $id_stage identifiant du stage 
@@ -121,15 +126,20 @@ abstract class Document {
             throw new Exception("Aucun questionnaire selectionné");
         }
         $this->setDbAccess();
-        $this->initExcelDoc(); 
+        $this->setIdQuestionnaire($id_questionnaire);
         $this->setStage($this->getDbAccess()->getStage($id_stage, $id_questionnaire));
+    }
+    
+    public function generateDocument() {
+        $this->initExcelDoc();
         $this->createSheet();
         $this->goFirstLine();
         $this->setColWidth();
-        $this->writeDocument($id_questionnaire);
-        $this->saveDocument($id_questionnaire);
+        $this->writeDocument($this->getIdQuestionnaire());
+        $this->saveDocument($this->getIdQuestionnaire());
     }
-    
+
+//<editor-fold defaultstate="collapsed" desc="Save File">
     protected function initExcelDoc() {
         $this->setExcelDoc(new \PHPExcel());
     }
@@ -145,8 +155,7 @@ abstract class Document {
         $this->getCurrentSheet()->setTitle($this->getStage()->getEtudiant().'');
         $this->getCurrentSheet()->duplicateStyleArray($this->STYLE_DEFAULT, 'A1:G200');
     }
-
-//<editor-fold defaultstate="collapsed" desc="Save File">
+    
     /**
      * 
      * @param int $id_questionnaire
@@ -507,6 +516,22 @@ abstract class Document {
         return './' . config::read('PATH') . 'evaluation/' .
                 $this->getFileName($this->getStage()->getQuestionnaire(0)->getId()) .
                 '.xlsx';
+    }
+    
+    /**
+     * 
+     * @return int
+     */
+    public function getIdQuestionnaire() {
+        return $this->_id_questionnaire;
+    }
+    
+    /**
+     * 
+     * @param int $id
+     */
+    public function setIdQuestionnaire($id) {
+        $this->_id_questionnaire = $id;
     }
     //</editor-fold>
 }

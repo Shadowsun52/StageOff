@@ -18,22 +18,44 @@ class GeneratorDocument {
      * ce fichier
      * @param int $id_stage identifiant du stage lié au questionnaire voulu
      * @param int $type type du questionnaire voulu
-     * @return string un lien vers le ficher excel generé
      * @throws Exception
      */
     public static function generateDocument($id_stage, $type) {
+        $document = self::initDocument($id_stage, $type);
+        $document->generateDocument();
+    }
+    
+    /**
+     * 
+     * @param int $id_stage identifiant du stage lié au questionnaire voulu
+     * @param int $type type du questionnaire voulu
+     * @return string retourne le lien vers le document
+     * @throws Exception
+     */
+    public static function getLinkDocument($id_stage, $type) {
+        $document = self::initDocument($id_stage, $type);
+        return $document->getLink();
+    }
+    
+    /**
+     * 
+     * @param int $id_stage identifiant du stage lié au questionnaire voulu
+     * @param int $type type du questionnaire voulu
+     * @return Document retourne un object extends de document
+     * @throws Exception
+     */
+    protected static function initDocument($id_stage, $type) {
         if($type == self::TYPE_STAGIARE) 
         {
-            $document = new DocumentEtudiant($id_stage);
+            return new DocumentEtudiant($id_stage);
         }
         elseif($type == self::TYPE_MDS)
         {
-            $document = new DocumentMds($id_stage);
+            return new DocumentMds($id_stage);
         }
         else
         {
             throw new Exception('Type de questionnaire inconnu');
         }
-        return $document->getLink();
     }
 }
