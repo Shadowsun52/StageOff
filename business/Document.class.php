@@ -13,9 +13,10 @@ abstract class Document {
     const FIRST_LINE = 6;
     const SPACE_WITH_TITLE = 2;
     const FIRST_COL_PROPOSITION = 'B';
-    const FIRST_COL_PROPOSITION_UNIQUE = 'A';
     const HEIGHT_INFO_STAGE = 23;
     const HEIGHT_TITLE_QUESTION = 30;
+    const BIG_PROPOSITION = 16;
+    const MAX_PROPOSITION_SIZE = 30;
     
     //style pour le fichier excel
     private $STYLE_DEFAULT = array(
@@ -291,16 +292,34 @@ abstract class Document {
         
         foreach ($question->getPropositions() as $proposition)
         {
-            $this->getCurrentSheet()->setCellValue($col . $this->getCurrentLine(),
-                    $proposition);
-            $this->getCurrentSheet()->getStyle($col . $this->getCurrentLine())
+            $cell = $col . $this->getCurrentLine();
+            $this->getCurrentSheet()->setCellValue($cell, $proposition);
+            if($this->IsLastAndBigProposition($proposition, $question))
+            {
+                $cell .= ':G' . $this->getCurrentLine();
+                $this->getCurrentSheet()->mergeCells($cell);
+                //definir hauteur ligne
+            }
+            $this->getCurrentSheet()->getStyle($cell)
                     ->applyFromArray($this->STYLE_PROPOSITION);
-            $this->getCurrentSheet()->getStyle(($col++) . $this->getCurrentLine())
+            $this->getCurrentSheet()->getStyle($cell)
                         ->getAlignment()->setWrapText(true);
+            $col++;
         }
         $this->moveCurrentLine();
     }
 
+    /**
+     * 
+     * @param string $proposition libelle de la proposition
+     * @param Question $question la question lié à la proposition
+     * @return boolean
+     */
+    protected function IsLastAndBigProposition($proposition, $question) {
+        $size_libelle = strlen($proposition);
+        $last_proposition = $question->getProposition(count($question->getPropositions())-1);
+        return $proposition == $last_proposition && $size_libelle > self::BIG_PROPOSITION;
+    }
     /**
      * Ecrit les questionnements d'une question et le résultat associé
      * @param Question $question
@@ -309,8 +328,7 @@ abstract class Document {
         if($question->getQuestionnement(0)->getLibelle() === NULL)
         {
             $this->writeLineResult($this->getColResult( $question->getQuestionnement(0), 
-                    $question->getPropositions(), self::FIRST_COL_PROPOSITION), 
-                    count($question->getPropositions()));
+                    $question->getPropositions(), self::FIRST_COL_PROPOSITION), $question);
         }
         else
         {
@@ -319,8 +337,8 @@ abstract class Document {
             foreach ($question->getQuestionnements() as $questionnement) {
                 $this->writeLibelleQuestionnement($questionnement->getLibelle());
                 $this->writeLineResult($this->getColResult(
-                        $questionnement, $question->getPropositions(), self::FIRST_COL_PROPOSITION),
-                        count($question->getPropositions()));
+                        $questionnement, $question->getPropositions(), 
+                        self::FIRST_COL_PROPOSITION), $question);
             }
         }
         $this->moveCurrentLine();
@@ -341,16 +359,31 @@ abstract class Document {
     /**
      * 
      * @param int $col_result position du résultat obtenu pour cette ligne
-     * @param int $nb_propositions nombre de proposition
+     * @param Question $question la question lié au résultat
      */
-    protected function writeLineResult($col_result, $nb_propositions) {
-        $end_col = self::FIRST_COL_PROPOSITION;
+    protected function writeLineResult($col_result, $question) {
+        $end_col = self::FIRST_COL_PROPOSITION;        
+        $nb_propositions = count($question->getPropositions());
+        $last_propositions = $question->getProposition($nb_propositions-1);
+        
         for($i=1; $i < $nb_propositions; $end_col++, $i++);
+        
+        if($this->IsLastAndBigProposition($last_propositions, $question))
+        {
+            $this->getCurrentSheet()->mergeCells($end_col . $this->getCurrentLine() .
+                    ':G' . $this->getCurrentLine());
+            $end_col = 'G';
+        }
+        else
+        {
+            
+        }
+        
         $this->getCurrentSheet()->getStyle(self::FIRST_COL_PROPOSITION . 
                 $this->getCurrentLine() . ':' . $end_col . $this->getCurrentLine())
-                ->applyFromArray($this->STYLE_RESULT);
+                ->applyFromArray($this->STYLE_RESULT);        
         $this->getCurrentSheet()->setCellValue($col_result . 
-                $this->moveCurrentLine(), 'X');  
+                $this->moveCurrentLine(), 'X');
     }
     
     /**
