@@ -53,13 +53,13 @@ class DatabaseAccess {
      */
     public function getPharmacien($id) {
         try {
-            $sql = "SELECT nom, prenom, ref_identification FROM pharmacien WHERE id = :id";
+            $sql = "SELECT nom, prenom FROM pharmacien WHERE ref_identification = :id";
             $request = $this->_getConnection()->prepare($sql);
             $request->execute(array(':id' => $id));
             $result = $request->fetch();
             
             $pharmacien = new Pharmacien($id, $result['nom'], $result['prenom']);
-            $pharmacien->setPharmacie($this->getPharmacie($result['ref_identification']));
+            $pharmacien->setPharmacie($this->getPharmacie($id));
             return $pharmacien;
         } catch (Exception $ex) {
             throw new Exception ('Erreur lors de la lecture dans la base de '
@@ -245,8 +245,8 @@ class DatabaseAccess {
      */
     public function getTypeOfficine($id_stage) {
         $sql = "SELECT o.ref_type_officine FROM officine o 
-                JOIN pharmacien p ON p.ref_identification = o.id 
-                JOIN stage s ON s.ref_identification = p.id WHERE s.id = :id_stage";
+                JOIN pharmacien p ON p.ref_identification = o.ref_identification 
+                JOIN stage s ON s.ref_identification = p.ref_identification WHERE s.id = :id_stage";
         $request = $this->_getConnection()->prepare($sql);
         $request->execute(array(':id_stage' => $id_stage));
         $result = $request->fetch(\PDO::FETCH_ASSOC);

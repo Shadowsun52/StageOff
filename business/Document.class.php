@@ -161,6 +161,11 @@ abstract class Document {
      * @param int $id_questionnaire
      */
     protected function saveDocument($id_questionnaire) {
+        $this->getCurrentSheet()->getProtection()->setSheet(true);
+        $this->getCurrentSheet()->getProtection()->setSort(true);
+        $this->getCurrentSheet()->getProtection()->setInsertRows(true);
+        $this->getCurrentSheet()->getProtection()->setFormatCells(true);
+        $this->getCurrentSheet()->getProtection()->setPassword('root@psw');
         $writer = new \PHPExcel_Writer_Excel2007($this->getExcelDoc());
         $writer->save(config::read('ROOT') . 'evaluation/' . 
                 $this->getFileName($id_questionnaire) . '.xlsx');
