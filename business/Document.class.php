@@ -391,16 +391,16 @@ abstract class Document {
                     ':G' . $this->getCurrentLine());
             $end_col = 'G';
         }
-        else
-        {
-            
-        }
         
         $this->getCurrentSheet()->getStyle(self::FIRST_COL_PROPOSITION . 
-                $this->getCurrentLine() . ':' . $end_col . $this->getCurrentLine())
-                ->applyFromArray($this->STYLE_RESULT);        
-        $this->getCurrentSheet()->setCellValue($col_result . 
-                $this->moveCurrentLine(), 'X');
+                    $this->getCurrentLine() . ':' . $end_col . $this->getCurrentLine())
+                    ->applyFromArray($this->STYLE_RESULT);
+        if($col_result <= $end_col)
+        { 
+            $this->getCurrentSheet()->setCellValue($col_result . 
+                    $this->getCurrentLine(), 'X');  
+        }
+        $this->moveCurrentLine();
     }
     
     /**
