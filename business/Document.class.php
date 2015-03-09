@@ -258,10 +258,10 @@ abstract class Document {
         return $first_line;
     }
     
-    protected function addStyleForStageInfo($first_line) {
+    protected function addStyleForStageInfo($first_line, $merge_end_cell = 'G') {
         for($i = $first_line; $i < $this->getCurrentLine(); $i++)
         {
-             $this->getCurrentSheet()->mergeCells('B' .$i . ':C' . $i);
+             $this->getCurrentSheet()->mergeCells('B' .$i . ':' . $merge_end_cell . $i);
              $this->getCurrentSheet()->getRowDimension($i)
                      ->setRowHeight(self::HEIGHT_INFO_STAGE);
              $this->getCurrentSheet()->getStyle('A'. $i)

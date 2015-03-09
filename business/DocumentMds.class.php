@@ -35,6 +35,9 @@ class DocumentMds extends Document{
                 "Durée et Période de stage");
         $this->getCurrentSheet()->setCellValue('B' . $this->moveCurrentLine(),
                 $this->getStage()->getPeriode() . ' ' . $this->getStage()->getDuree());
+        $this->addStyleForStageInfo($first_line);
+        $first_line = $this->getCurrentLine();
+        
         $this->getCurrentSheet()->setCellValue('A' . $this->getCurrentLine(),
                 "Pharmacie");
         $this->getCurrentSheet()->setCellValue('B' . $this->getCurrentLine(),
@@ -50,9 +53,7 @@ class DocumentMds extends Document{
                 "- Mail :");
         $this->getCurrentSheet()->setCellValue('D' . $this->moveCurrentLine(),
                 $this->getStage()->getMaitreDeStage()->getPharmacie()->getMail());
-        $this->addStyleForStageInfo($first_line);
-        $this->getCurrentSheet()->unmergeCells('B' . $long_line . ':C' . $long_line);
-        $this->getCurrentSheet()->mergeCells('B' . $long_line . ':G' . $long_line);
+        $this->addStyleForStageInfo($first_line, 'C');
     }
     
     /**
