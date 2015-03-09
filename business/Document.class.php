@@ -152,7 +152,15 @@ abstract class Document {
     protected function createSheet($index_sheet=0) {
         $this->getExcelDoc()->createSheet();
         $this->getExcelDoc()->setActiveSheetIndex($index_sheet);
-        $this->getCurrentSheet()->setTitle($this->getStage()->getEtudiant().'');
+        
+        $title = $this->getStage()->getEtudiant().'';
+        
+        if(strlen($title) > 31)
+        {
+            $title = substr($title,0,28).'...';
+        }
+        
+        $this->getCurrentSheet()->setTitle($title);
         $this->getCurrentSheet()->duplicateStyleArray($this->STYLE_DEFAULT, 'A1:G200');
     }
     
