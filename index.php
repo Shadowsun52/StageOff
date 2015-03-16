@@ -21,5 +21,11 @@ use Exception;
         <a href="<?php echo $excel; ?>">
             <img src="./images/excel.png" alt="lien vers document Excel"/>
         <a/>
+        <?php
+        $DAO = new \stageOff\data\DatabaseAccess();
+        $tab_mat = $DAO->getMatriculeEtudiantPerYear(2015);
+        $tab_year = $DAO->getYearWithFinalStudent();
+        var_dump($tab_year);
+        ?>
     </body>
 </html>

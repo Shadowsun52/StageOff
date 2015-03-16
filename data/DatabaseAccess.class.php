@@ -15,6 +15,7 @@ use \Exception;
  */
 class DatabaseAccess {
     const SEPARATOR = '#';
+    const MIN_YEAR = 2000;
     /**
      * @var PDO2 instance d'une connexion object PDO
      */
@@ -253,6 +254,51 @@ class DatabaseAccess {
         return $result['ref_type_officine'];
     }
 
+    /**
+     * 
+     * @param int $year Année de fin d'étude des stagiares recherchés
+     * @return type
+     */
+    public function getMatriculeEtudiantPerYear($year) {
+        $sql = "SELECT e.matricule FROM etudiant e
+                JOIN stage s ON e.matricule = s.ref_etudiant 
+                WHERE e.annee like 'PHAR5%' GROUP BY e.matricule
+                HAVING substr(max(s.date_fin),1,4) = :year ORDER BY e.matricule";
+        $request = $this->_getConnection()->prepare($sql);
+        $request->execute(array(':year' => $year));
+        $result = $request->fetchAll(\PDO::FETCH_ASSOC);
+        
+        if(count($result) == 0)
+        {
+            return null;
+        }
+        
+        foreach($result as $row){
+            $matricules[] = $row['matricule'];
+        }
+        return $matricules;
+    }
+    
+    /**
+     * 
+     * @return int[] Liste des années avec des étudiants qui ont terminés
+     */
+    public function getYearWithFinalStudent() {
+        $sql = "SELECT substr(s.date_fin,1,4) as 'year' FROM stage s
+                JOIN etudiant e ON e.matricule = s.ref_etudiant
+                WHERE e.annee like 'PHAR5%' AND substr(s.date_fin,1,4) > :min_year
+                AND substr(s.date_fin,1,4) <= year(NOW())
+                GROUP BY substr(s.date_fin,1,4) ORDER BY s.date_fin DESC";
+        $request = $this->_getConnection()->prepare($sql);
+        $request->execute(array('min_year' => self::MIN_YEAR));
+        $result = $request->fetchAll(\PDO::FETCH_ASSOC);
+        
+        foreach($result as $row) {
+            $year[] = $row['year'];
+        }
+        return $year;
+    }
+    
     private function _getConnection() {
         return $this->_connection;
     }
