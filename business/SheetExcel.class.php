@@ -115,19 +115,21 @@ abstract class SheetExcel {
      * @return Worksheet
      */
     public function createSheet() {
-        $this->getSheet() = new \PHPExcel_Worksheet(null, $this->getSheetName());
+        $temp = new \PHPExcel();
+        $this->setSheet(new \PHPExcel_Worksheet($temp, $this->getSheetName()));
+        $temp->addSheet($this->getSheet());
         $this->writeSheet();
         $this->protectWorksheet();
         return $this->getSheet();
     }
 //<editor-fold defaultstate="collapsed" desc="writer">
 
-    public function writeSheet() {
+    protected function writeSheet() {
         $this->getSheet()->duplicateStyleArray($this->STYLE_DEFAULT, 'A1:G200');
         $this->goFirstLine();
         $this->setColWidth();
         $this->writeLogo();
-        $id_questionnaire = $this->getStage()->getQuestionnaire(0);
+        $id_questionnaire = $this->getStage()->getQuestionnaire(0)->getId();
         $this->writeTitle($id_questionnaire);
         $this->writeStageInfo();
         $this->writeAllQuestions($id_questionnaire);
@@ -334,11 +336,11 @@ abstract class SheetExcel {
     }
     
     protected function protectWorksheet() {
-        $this->getCurrentSheet()->getProtection()->setSheet(true);
-        $this->getCurrentSheet()->getProtection()->setSort(true);
-        $this->getCurrentSheet()->getProtection()->setInsertRows(true);
-        $this->getCurrentSheet()->getProtection()->setFormatCells(true);
-        $this->getCurrentSheet()->getProtection()->setPassword('root@psw');
+        $this->getSheet()->getProtection()->setSheet(true);
+        $this->getSheet()->getProtection()->setSort(true);
+        $this->getSheet()->getProtection()->setInsertRows(true);
+        $this->getSheet()->getProtection()->setFormatCells(true);
+        $this->getSheet()->getProtection()->setPassword('root@psw');
     }
 //</editor-fold>
     
@@ -396,7 +398,14 @@ abstract class SheetExcel {
      * @param Stage $stage
      */
     public function setStage($stage) {
-        $this->_stage = $stage;
+        if($stage == NULL)
+        {
+            $this->_stage = new Stage();
+        }
+        else
+        {
+            $this->_stage = $stage;    
+        }
     }
     
     /**
