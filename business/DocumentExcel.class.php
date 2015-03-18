@@ -11,6 +11,10 @@ abstract class DocumentExcel {
     const TYPE_QUESTIONNAIRE_ETUDIANT = 1;
     const TYPE_QUESTIONNAIRE_MDS = 2;
     const SAVE_FOLDER = 'evaluation';
+    const STAGE_OFFINICAL = 1;
+    const STAGE_HOSPITALIER = 2;
+    const PHARMACIE_OFFICINAL = 1;
+    const PHARMACIE_HOSPITALIERE = 2;
     
     /**
      * @var PHPExcel objet document excel 
@@ -114,6 +118,28 @@ abstract class DocumentExcel {
      * @return string
      */
     protected abstract function getSavePath();
+    
+    /**
+     * Retourne le type du lieu de stage qui peut etre soit officinal ou hospitalier
+     * @param int $id_stage identifiant du stage
+     * @return int
+     * @throws Exception
+     */
+    protected function getTypeOfficine($id_stage) {
+        $type_officine = $this->getDbAccess()->getTypeOfficine($id_stage);
+        if($type_officine == self::PHARMACIE_OFFICINAL)
+        {
+            return self::STAGE_OFFINICAL;
+        }
+        elseif($type_officine == self:: PHARMACIE_HOSPITALIERE)
+        {
+            return self::STAGE_HOSPITALIER;
+        }
+        else
+        {
+            throw new Exception('Aucun type de questionnaire trouvé pour ce stage');
+        }
+    }
     
     public function getExcelDoc() {
         return $this->_excel_doc;
