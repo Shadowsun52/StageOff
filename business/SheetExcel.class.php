@@ -114,14 +114,13 @@ abstract class SheetExcel {
      * Fonction qui crée le worksheet en fonction du stage
      * @return Worksheet
      */
-    public function createSheet() {
-        $temp = new \PHPExcel();
-        $this->setSheet(new \PHPExcel_Worksheet($temp, $this->getSheetName()));
-        $temp->addSheet($this->getSheet());
+    public function createSheet($excel_doc) {
+        $this->setSheet(new \PHPExcel_Worksheet($excel_doc, $this->getSheetName()));
+        $excel_doc->addSheet($this->getSheet());
         $this->writeSheet();
         $this->protectWorksheet();
-        return $this->getSheet();
     }
+    
 //<editor-fold defaultstate="collapsed" desc="writer">
 
     protected function writeSheet() {

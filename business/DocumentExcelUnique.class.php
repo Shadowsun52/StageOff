@@ -22,11 +22,11 @@ class DocumentExcelUnique extends DocumentExcel{
     public function __construct($type_questionnaire, $id_stage) {
         parent::__construct($type_questionnaire);
         $stage = $this->readStage($id_stage);
-        $this->createSheetExcel($stage);
+        $this->setSheetExcel($this->createSheetExcel($stage));
     }
     
     protected function addContain() {
-        $this->getExcelDoc()->addSheet($this->getSheetExcel()->createSheet());
+        $this->getSheetExcel()->createSheet($this->getExcelDoc());
     }
 
 //<editor-fold defaultstate="collapsed" desc="getter&setter">
@@ -61,7 +61,7 @@ class DocumentExcelUnique extends DocumentExcel{
      * @return string
      */
     protected function getSavePath() {
-        $path = '/' . self::SAVE_FOLDER;
+        $path = self::SAVE_FOLDER;
         if($this->getTypeQuestionnaire() == self::TYPE_QUESTIONNAIRE_ETUDIANT
                 && self::SAVE_SUBFOLDER_ETU != '')
         {
@@ -72,7 +72,7 @@ class DocumentExcelUnique extends DocumentExcel{
             $path .= '/'. self::SAVE_SUBFOLDER_MDS;
         }
         
-        return $path;
+        return $path . '/';
     }
     
     /**
