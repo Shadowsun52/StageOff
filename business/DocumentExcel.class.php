@@ -52,6 +52,15 @@ abstract class DocumentExcel {
         $this->setExcelDoc(new \PHPExcel());
     }
     
+    protected function createSheetExcel($stage){
+        if($this->getTypeQuestionnaire() == self::TYPE_QUESTIONNAIRE_ETUDIANT)
+        {
+            return new SheetExcelEtudiant($stage);
+        }
+        
+        return new SheetExcelMDS($stage);
+    }
+    
     /**
      * Attache une feuille excel au document excel
      * @param Worksheet $sheet La feuille excel à attacher
@@ -104,7 +113,7 @@ abstract class DocumentExcel {
      * Retourne le chemin relative vers le dossier on sont stocker les Excels
      * @return string
      */
-    public abstract function getSavePath();
+    protected abstract function getSavePath();
     
     public function getExcelDoc() {
         return $this->_excel_doc;
