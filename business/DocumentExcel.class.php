@@ -13,6 +13,7 @@ abstract class DocumentExcel {
     const SAVE_FOLDER = 'evaluation';
     const STAGE_OFFINICAL = 1;
     const STAGE_HOSPITALIER = 2;
+    const DOCUMENT_ETUDIANT = 3;
     const PHARMACIE_OFFICINAL = 1;
     const PHARMACIE_HOSPITALIERE = 2;
     
@@ -141,6 +142,22 @@ abstract class DocumentExcel {
         }
     }
     
+    /**
+     * Retourne un stage de la base de donnée par rapport à un idée et au type 
+     * du questionnaire
+     * @param int $id_stage identifiant du stage
+     * @return Stage
+     * @throws Exception
+     */
+    protected function readStage($id_stage) {
+        if($this->getTypeQuestionnaire() == self::TYPE_QUESTIONNAIRE_ETUDIANT) {
+            return $this->getDbAccess()->getStage($id_stage, self::DOCUMENT_ETUDIANT);
+        }
+        
+        return $this->getDbAccess()->getStage($id_stage, $this->getTypeOfficine($id_stage));
+    }
+
+
     public function getExcelDoc() {
         return $this->_excel_doc;
     }
