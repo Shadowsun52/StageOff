@@ -10,6 +10,7 @@ use stageOff\data\DatabaseAccess;
 abstract class DocumentExcel {
     const TYPE_QUESTIONNAIRE_ETUDIANT = 1;
     const TYPE_QUESTIONNAIRE_MDS = 2;
+    const SAVE_FOLDER = 'evaluation';
     
     /**
      * @var PHPExcel objet document excel 
@@ -29,6 +30,7 @@ abstract class DocumentExcel {
     /**
      * 
      * @param int $type_questionnaire Type du questionnaire voulu
+     * @throws Exception
      */
     public function __construct($type_questionnaire) {
         $this->setTypeQuestionnaire($type_questionnaire);
@@ -116,8 +118,27 @@ abstract class DocumentExcel {
         return $this->_type_questionnaire;
     }
     
+    /**
+     * 
+     * @param int $type_questionnaire 
+     * @throws Exception
+     */
     public function setTypeQuestionnaire($type_questionnaire) {
+        if(!$this->typeQuestionnaireExist($type_questionnaire))
+        {
+            throw new Exception("Type du questionnaire inconnu!");
+        }
         $this->_type_questionnaire = $type_questionnaire;
+    }
+    
+    /**
+     * Verifie que le type du questionnaire existe
+     * @param int $type_questionnaire type du questionnaire
+     * @return boolean
+     */
+    protected function typeQuestionnaireExist($type_questionnaire) {
+        return $type_questionnaire == self::TYPE_QUESTIONNAIRE_ETUDIANT ||
+                $type_questionnaire == self::TYPE_QUESTIONNAIRE_MDS;
     }
     
     public function initDbAccess() {
