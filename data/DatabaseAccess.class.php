@@ -15,7 +15,7 @@ use \Exception;
  */
 class DatabaseAccess {
     const SEPARATOR = '#';
-    const MIN_YEAR = 2000;
+    const MIN_YEAR = 2013;
     /**
      * @var PDO2 instance d'une connexion object PDO
      */
@@ -119,6 +119,37 @@ class DatabaseAccess {
                 $stage->addQuestionnaire($this->getQuestionnaire($questionnaire, $id));
             }
             return $stage;
+        } catch (Exception $ex) {
+            throw new Exception ('Erreur lors de la lecture dans la base de '
+                    . 'données durant le chargement des informations du stage.');
+        }
+    }
+    
+    public function getAllStageForEtudiant($id_etudiant, $questionnaire = NULL) {
+        try{
+            $sql = "SELECT id, ref_identification, date_debut, date_fin "
+                     . "FROM stage WHERE ref_etudiant = :ref_etudiant";
+            $request = $this->_getConnection()->prepare($sql);
+            $request->execute(array(':ref_etudiant' => $id_etudiant));
+            $results = $request->fetchAll(\PDO::FETCH_ASSOC);
+            
+            foreach($results as $result) {
+                $stage = new Stage($result['id'], new \DateTime($result['date_debut']),
+                    new \DateTime($result['date_fin']));
+                $stage->setEtudiant($this->getEtudiant($id_etudiant));
+                $stage->setMaitreDeStage($this->getPharmacien($result['ref_identification']));
+                if($questionnaire === NULL)
+                {
+                    $stage->setQuestionnaires($this->getAllQuestionnairesForStage($result['id']));
+                }
+                else
+                {
+                    $stage->addQuestionnaire($this->getQuestionnaire($questionnaire, $result['id']));
+                }
+                $stages[] = $stage;
+            }
+            
+            return $stages;
         } catch (Exception $ex) {
             throw new Exception ('Erreur lors de la lecture dans la base de '
                     . 'données durant le chargement des informations du stage.');
@@ -286,19 +317,44 @@ class DatabaseAccess {
     public function getYearWithFinalStudent() {
         $sql = "SELECT substr(s.date_fin,1,4) as 'year' FROM stage s
                 JOIN etudiant e ON e.matricule = s.ref_etudiant
-                WHERE e.annee like 'PHAR5%' AND substr(s.date_fin,1,4) > :min_year
+                WHERE e.annee like 'PHAR5%' AND substr(s.date_fin,1,4) >= :min_year
                 AND substr(s.date_fin,1,4) <= year(NOW())
                 GROUP BY substr(s.date_fin,1,4) ORDER BY s.date_fin DESC";
         $request = $this->_getConnection()->prepare($sql);
         $request->execute(array('min_year' => self::MIN_YEAR));
         $result = $request->fetchAll(\PDO::FETCH_ASSOC);
-        
+
         foreach($result as $row) {
-            $year[] = $row['year'];
+            if($this->verifYearHasFinalStudent($row['year']))
+            {
+                $year[] = $row['year'];
+            }
         }
         return $year;
     }
     
+    /**
+     * Verifie qu'une année a bien un étudiant en final
+     * @param int $year
+     * @return boolean
+     */
+    protected function verifYearHasFinalStudent($year) {
+        $sql = "SELECT s.id FROM stage s
+                JOIN etudiant e ON e.matricule = s.ref_etudiant
+                WHERE e.annee like 'PHAR5%' GROUP BY e.matricule
+                HAVING max(substr(s.date_fin,1,4)) = :year";
+        $request = $this->_getConnection()->prepare($sql);
+        $request->execute(array('year' =>$year));
+        $verif_year = $request->fetchAll(\PDO::FETCH_ASSOC);
+        
+        if(count($verif_year) > 0)
+        {
+            return true;
+        }
+        
+        return false;
+    }
+
     private function _getConnection() {
         return $this->_connection;
     }
