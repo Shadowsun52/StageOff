@@ -41,6 +41,7 @@ abstract class DocumentExcel {
         $this->setTypeQuestionnaire($type_questionnaire);
         $this->initDbAccess();
     }
+    
 //<editor-fold defaultstate="collapsed" desc="Generate Doc">
     /**
      * Generer le document excel
