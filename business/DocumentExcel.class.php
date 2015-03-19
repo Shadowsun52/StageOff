@@ -176,6 +176,7 @@ abstract class DocumentExcel {
     
     public function setExcelDoc($excel_doc) {
         $this->_excel_doc = $excel_doc;
+        $this->_excel_doc->removeSheetByIndex(0);
     }
     
     public function getTypeQuestionnaire() {
