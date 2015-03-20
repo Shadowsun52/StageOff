@@ -40,7 +40,10 @@ class DocumentExcelPerYear extends DocumentExcel{
     }
     
     protected function addContain() {
-        
+        foreach ($this->getSheetsExcel() as $sheet_excel)
+        {
+            $sheet_excel->createSheet($this->getExcelDoc());
+        }
     }
  
 //<editor-fold defaultstate="collapsed" desc="getter&setter">
