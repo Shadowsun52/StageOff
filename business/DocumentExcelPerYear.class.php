@@ -26,6 +26,17 @@ class DocumentExcelPerYear extends DocumentExcel{
      */
     public function __construct($type_questionnaire, $year) {
         parent::__construct($type_questionnaire);
+        $this->setYear($year);
+        $this->setSheetsExcel();
+
+        $etudiants = $this->getDbAccess()->getMatriculeEtudiantPerYear($this->getYear());
+        foreach($etudiants as $id_etudiant) {
+            $id_stages = $this->getDbAccess()->getAllIdStageForEtudiant($id_etudiant);
+            foreach ($id_stages as $id_stage) {
+                $stage = $this->readStage($id_stage);
+                $this->addSheetExcel($this->createSheetExcel($stage));
+            }
+        }
     }
     
     protected function addContain() {
@@ -34,11 +45,27 @@ class DocumentExcelPerYear extends DocumentExcel{
  
 //<editor-fold defaultstate="collapsed" desc="getter&setter">
     protected function getSavePath() {
+        $path = self::SAVE_FOLDER;
         
+        if(self::SAVE_SUBFOLDER != '')
+        {
+            $path .= '/'. self::SAVE_SUBFOLDER;
+        }
+ 
+        return $path . '/';
     }
 
     public function getFileName() {
+        if($this->getTypeQuestionnaire() == self::TYPE_QUESTIONNAIRE_ETUDIANT)
+        {
+            $file_name = "Formulaire d'évaluation des stages";
+        }
+        else
+        {
+            $file_name = "Formulaire d'évaluation des stagiares";
+        }
         
+        return ($this->getYear()-1) . '-' . $this->getYear() . ' ' . $file_name;
     }
     
     /**
@@ -53,8 +80,15 @@ class DocumentExcelPerYear extends DocumentExcel{
      * 
      * @param SheetExcel[] $sheets
      */
-    public function setSheetsExcel($sheets) {
-        $this->_sheets_excel = $sheets;
+    public function setSheetsExcel($sheets = NULL) {
+        if($sheets == NULL) 
+        {
+            $this->_sheets_excel = array();
+        }
+        else
+        {
+           $this->_sheets_excel = $sheets; 
+        }
     }
     
     /**

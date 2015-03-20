@@ -125,34 +125,22 @@ class DatabaseAccess {
         }
     }
     
-    public function getAllStageForEtudiant($id_etudiant, $questionnaire = NULL) {
+    public function getAllIdStageForEtudiant($id_etudiant) {
         try{
-            $sql = "SELECT id, ref_identification, date_debut, date_fin "
-                     . "FROM stage WHERE ref_etudiant = :ref_etudiant";
+            $sql = "SELECT id FROM stage WHERE ref_etudiant = :ref_etudiant";
             $request = $this->_getConnection()->prepare($sql);
             $request->execute(array(':ref_etudiant' => $id_etudiant));
             $results = $request->fetchAll(\PDO::FETCH_ASSOC);
             
             foreach($results as $result) {
-                $stage = new Stage($result['id'], new \DateTime($result['date_debut']),
-                    new \DateTime($result['date_fin']));
-                $stage->setEtudiant($this->getEtudiant($id_etudiant));
-                $stage->setMaitreDeStage($this->getPharmacien($result['ref_identification']));
-                if($questionnaire === NULL)
-                {
-                    $stage->setQuestionnaires($this->getAllQuestionnairesForStage($result['id']));
-                }
-                else
-                {
-                    $stage->addQuestionnaire($this->getQuestionnaire($questionnaire, $result['id']));
-                }
-                $stages[] = $stage;
+                $stages[] = $result['id'];
             }
             
             return $stages;
+            
         } catch (Exception $ex) {
             throw new Exception ('Erreur lors de la lecture dans la base de '
-                    . 'données durant le chargement des informations du stage.');
+                    . 'données durant le chargement des identifiants des stages.');
         }
     }
     
