@@ -15,7 +15,9 @@ use \Exception;
  */
 class DatabaseAccess {
     const SEPARATOR = '#';
-    const MIN_YEAR = 2013;
+    const MIN_YEAR = 2010;
+    const TYPE_EVALUATION_ETUDIANT = 1;
+    const TYPE_EVALUATION_MDS = 2;
     /**
      * @var PDO2 instance d'une connexion object PDO
      */
@@ -125,9 +127,17 @@ class DatabaseAccess {
         }
     }
     
-    public function getAllIdStageForEtudiant($id_etudiant) {
+    /**
+     * 
+     * @param int $id_etudiant identifiant de l'étudiant
+     * @param int $type_evaluation type 'évaluation voulu
+     * @return int[] tableau des id des stages lié à l'étudiant ayant une evaluation
+     * @throws Exception
+     */
+    public function getAllIdStageForEtudiant($id_etudiant, $type_evaluation) {
         try{
-            $sql = "SELECT id FROM stage WHERE ref_etudiant = :ref_etudiant";
+            $sql = "SELECT id FROM stage WHERE ref_etudiant = :ref_etudiant AND " .
+                    $this->getColForEvaluation($type_evaluation) . " = 1";
             $request = $this->_getConnection()->prepare($sql);
             $request->execute(array(':ref_etudiant' => $id_etudiant));
             $results = $request->fetchAll(\PDO::FETCH_ASSOC);
@@ -260,7 +270,7 @@ class DatabaseAccess {
 
     /**
      * Retourne l'id du type d'officine où se déroule le stage
-     * @param int $id_stage identifiant du stage
+     * @param int $id_stage identifiant du stage 
      * @return int
      */
     public function getTypeOfficine($id_stage) {
@@ -276,13 +286,16 @@ class DatabaseAccess {
     /**
      * 
      * @param int $year Année de fin d'étude des stagiares recherchés
+     * @param int $type_evaluation le type d'évaluation voulu
      * @return type
      */
-    public function getMatriculeEtudiantPerYear($year) {
+    public function getMatriculeEtudiantPerYear($year, $type_evaluation) {
         $sql = "SELECT e.matricule FROM etudiant e
                 JOIN stage s ON e.matricule = s.ref_etudiant 
                 WHERE e.annee like 'PHAR5%' GROUP BY e.matricule
-                HAVING substr(max(s.date_fin),1,4) = :year ORDER BY e.matricule";
+                HAVING substr(max(s.date_fin),1,4) = :year AND max(s." .
+                $this->getColForEvaluation($type_evaluation) .
+                " = 1) ORDER BY e.matricule";
         $request = $this->_getConnection()->prepare($sql);
         $request->execute(array(':year' => $year));
         $result = $request->fetchAll(\PDO::FETCH_ASSOC);
@@ -300,14 +313,16 @@ class DatabaseAccess {
     
     /**
      * 
+     * @param int $type_evaluation le type d'évaluation voulu
      * @return int[] Liste des années avec des étudiants qui ont terminés
      */
-    public function getYearWithFinalStudent() {
+    public function getYearWithFinalStudent($type_evaluation) {
         $sql = "SELECT substr(s.date_fin,1,4) as 'year' FROM stage s
                 JOIN etudiant e ON e.matricule = s.ref_etudiant
                 WHERE e.annee like 'PHAR5%' AND substr(s.date_fin,1,4) >= :min_year
-                AND substr(s.date_fin,1,4) <= year(NOW())
-                GROUP BY substr(s.date_fin,1,4) ORDER BY s.date_fin DESC";
+                AND substr(s.date_fin,1,4) <= year(NOW()) AND s." .
+                $this->getColForEvaluation($type_evaluation) .  
+                "=1 GROUP BY substr(s.date_fin,1,4) ORDER BY s.date_fin DESC";
         $request = $this->_getConnection()->prepare($sql);
         $request->execute(array('min_year' => self::MIN_YEAR));
         $result = $request->fetchAll(\PDO::FETCH_ASSOC);
@@ -349,5 +364,26 @@ class DatabaseAccess {
     
     private function _setConnection() {
         $this->_connection = PDO2::getInstance()->db;
+    }
+    
+    /**
+     * 
+     * @param int $type_evaluation Type d'évaluation
+     * @return string
+     * @throws Exception
+     */
+    protected function getColForEvaluation($type_evaluation) {
+        if($type_evaluation == self::TYPE_EVALUATION_ETUDIANT)
+        {
+            return 'evaluation_etudiant_disponible';
+        }
+        elseif($type_evaluation == self::TYPE_EVALUATION_MDS)
+        {
+            return 'evaluation_disponible';
+        }
+        else
+        {
+            throw new Exception('Type d\'évaluation inconnu');
+        }
     }
 }

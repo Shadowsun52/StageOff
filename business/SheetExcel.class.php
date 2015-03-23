@@ -124,7 +124,7 @@ abstract class SheetExcel {
 //<editor-fold defaultstate="collapsed" desc="writer">
 
     protected function writeSheet() {
-        $this->getSheet()->duplicateStyleArray($this->STYLE_DEFAULT, 'A1:G200');
+        $this->getSheet()->duplicateStyleArray($this->STYLE_DEFAULT, 'A1:G120');
         $this->goFirstLine();
         $this->setColWidth();
         $this->writeLogo();

@@ -29,9 +29,11 @@ class DocumentExcelPerYear extends DocumentExcel{
         $this->setYear($year);
         $this->setSheetsExcel();
 
-        $etudiants = $this->getDbAccess()->getMatriculeEtudiantPerYear($this->getYear());
+        $etudiants = $this->getDbAccess()->getMatriculeEtudiantPerYear(
+                $this->getYear(), $this->getTypeQuestionnaire());
         foreach($etudiants as $id_etudiant) {
-            $id_stages = $this->getDbAccess()->getAllIdStageForEtudiant($id_etudiant);
+            $id_stages = $this->getDbAccess()->getAllIdStageForEtudiant(
+                    $id_etudiant, $this->getTypeQuestionnaire());
             foreach ($id_stages as $id_stage) {
                 $stage = $this->readStage($id_stage);
                 $this->addSheetExcel($this->createSheetExcel($stage));
@@ -61,11 +63,11 @@ class DocumentExcelPerYear extends DocumentExcel{
     public function getFileName() {
         if($this->getTypeQuestionnaire() == self::TYPE_QUESTIONNAIRE_ETUDIANT)
         {
-            $file_name = "Formulaire d'évaluation des stages";
+            $file_name = "Formulaire d'evaluation des stages";
         }
         else
         {
-            $file_name = "Formulaire d'évaluation des stagiares";
+            $file_name = "Formulaire d'evaluation des stagiares";
         }
         
         return ($this->getYear()-1) . '-' . $this->getYear() . ' ' . $file_name;
