@@ -8,7 +8,7 @@ namespace stageOff\business;
  */
 class DocumentExcelPerYear extends DocumentExcel{
     const SAVE_SUBFOLDER = '';
-    
+    const TEMP_MAX_EXECUTION = 300;
     /**
      * @var int Année de fin d'étude des étudiants recherchés
      */
@@ -42,6 +42,7 @@ class DocumentExcelPerYear extends DocumentExcel{
     }
     
     protected function addContain() {
+        set_time_limit (self::TEMP_MAX_EXECUTION);
         foreach ($this->getSheetsExcel() as $sheet_excel)
         {
             $sheet_excel->createSheet($this->getExcelDoc());
