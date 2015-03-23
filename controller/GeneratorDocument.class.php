@@ -1,7 +1,7 @@
 <?php
 namespace stageOff\controller;
-use stageOff\business\DocumentEtudiant;
-use stageOff\business\DocumentMds;
+use stageOff\business\DocumentExcelUnique;
+use stageOff\business\DocumentExcelPerYear;
 
 /**
  * Factory en static appelant la classe generant le fichier excel voulu et 
@@ -14,48 +14,25 @@ class GeneratorDocument {
     const TYPE_MDS = 2;
     
     /**
-     * Genere un fichier excel du questionnaire voulu et retour le lien vers 
-     * ce fichier
+     * Genere un fichier excel du questionnaire voulu pour un stage donné
      * @param int $id_stage identifiant du stage lié au questionnaire voulu
-     * @param int $type type du questionnaire voulu
+     * @param int $type_questionnaire type du questionnaire voulu
      * @throws Exception
      */
-    public static function generateDocument($id_stage, $type) {
-        $document = self::initDocument($id_stage, $type);
+    public static function generateDocumentUnique($id_stage, $type_questionnaire) {
+        $document = new DocumentExcelUnique($type_questionnaire, $id_stage);
         $document->generateDocument();
     }
     
     /**
-     * 
+     * Retourne le lien d'un fichier excel pour un stage spécifique 
      * @param int $id_stage identifiant du stage lié au questionnaire voulu
-     * @param int $type type du questionnaire voulu
+     * @param int $type_questionnaire type du questionnaire voulu
      * @return string retourne le lien vers le document
      * @throws Exception
      */
-    public static function getLinkDocument($id_stage, $type) {
-        $document = self::initDocument($id_stage, $type);
+    public static function getLinkDocumentUnique($id_stage, $type_questionnaire) {
+        $document = new \stageOff\business\DocumentExcelUnique($type_questionnaire, $id_stage);
         return $document->getLink();
-    }
-    
-    /**
-     * 
-     * @param int $id_stage identifiant du stage lié au questionnaire voulu
-     * @param int $type type du questionnaire voulu
-     * @return Document retourne un object extends de document
-     * @throws Exception
-     */
-    protected static function initDocument($id_stage, $type) {
-        if($type == self::TYPE_STAGIARE) 
-        {
-            return new DocumentEtudiant($id_stage);
-        }
-        elseif($type == self::TYPE_MDS)
-        {
-            return new DocumentMds($id_stage);
-        }
-        else
-        {
-            throw new Exception('Type de questionnaire inconnu');
-        }
     }
 }
