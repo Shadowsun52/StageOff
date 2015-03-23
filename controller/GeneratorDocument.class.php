@@ -32,7 +32,20 @@ class GeneratorDocument {
      * @throws Exception
      */
     public static function getLinkDocumentUnique($id_stage, $type_questionnaire) {
-        $document = new \stageOff\business\DocumentExcelUnique($type_questionnaire, $id_stage);
+        $document = new DocumentExcelUnique($type_questionnaire, $id_stage);
+        return $document->getLink();
+    }
+    
+    /**
+     * Generer le fichier excels des stages des étudiants terminant leur études 
+     * durant l'année entrée
+     * @param type $year 
+     * @param type $type_questionnaire type de questionnaire voulu
+     * @return string le lien vers le document excel
+     */
+    public static function getDocumentPerYear($year, $type_questionnaire) {
+        $document = new DocumentExcelPerYear($type_questionnaire, $year);
+        $document->generateDocument();
         return $document->getLink();
     }
 }
