@@ -446,13 +446,9 @@ abstract class SheetExcel {
      * 
      * @return string Nom de la feuille excel
      */
-    public function getSheetName() {      
-        $title = $this->getStage()->getEtudiant().'';
-        
-        if(strlen($title) > 31)
-        {
-            $title = substr($title,0,28).'...';
-        }
+    public function getSheetName() {
+        $title = substr($this->getStage()->getEtudiant().'',0,21) . ' ' .
+                $this->getStage()->getEndDateFormat('d.m.y');
         
         return $title;
     }

@@ -2,6 +2,7 @@
 namespace stageOff\controller;
 use stageOff\business\DocumentExcelUnique;
 use stageOff\business\DocumentExcelPerYear;
+use stageOff\data\DatabaseAccess;
 
 /**
  * Factory en static appelant la classe generant le fichier excel voulu et 
@@ -12,6 +13,8 @@ use stageOff\business\DocumentExcelPerYear;
 class GeneratorDocument {
     const TYPE_STAGIARE = 1;
     const TYPE_MDS = 2;
+    const TYPE_EVALUATION_ETUDIANT = 1;
+    const TYPE_EVALUATION_MDS = 2;
     
     /**
      * Genere un fichier excel du questionnaire voulu pour un stage donné
@@ -47,5 +50,11 @@ class GeneratorDocument {
         $document = new DocumentExcelPerYear($type_questionnaire, $year);
         $document->generateDocument();
         return $document->getLink();
+    }
+    
+    public static function getYearWithFinalStudent($type_evaluation) {
+        //petit entorse au MVC, l'idéal serait de passé par uen méthode dans une classe Business
+        $DAO = new DatabaseAccess(); 
+        return $DAO->getYearWithFinalStudent($type_evaluation);
     }
 }
