@@ -35,10 +35,19 @@ class Stage {
     private $_end_date;
     
     /**
-     *
      * @var array[Questionnaire] Les informations pour chaque questionnaire lié au stagiaire
      */
     private $_questionnaires;
+    
+    /**
+     * @var string 
+     */
+    private $_comment_mds;
+    
+    /**
+     * @var string 
+     */
+    private $_comment_etu;
     
     /**
      * 
@@ -48,14 +57,18 @@ class Stage {
      * @param Etudiant $etudiant Etudiant effectuant le stage
      * @param Pharmacien $maitre_de_stage Pharmacien supervisant l'étudiant
      */
-    public function __construct($id=NULL, $start_date=NULL, $end_date=NULL, 
-            $etudiant=NULL, $maitre_de_stage=NULL, $questionnaires=NULL) {
+    public function __construct($id = NULL, $start_date = NULL, $end_date = NULL,
+            $comment_mds = NULL, $comment_etu = NULL, $etudiant = NULL, 
+            $maitre_de_stage = NULL, $questionnaires = NULL) {
         $this->setId($id);
         $this->setEtudiant($etudiant);
         $this->setMaitreDeStage($maitre_de_stage);
         $this->setStartDate($start_date);
         $this->setEndDate($end_date);
         $this->setQuestionnaires($questionnaires);
+        $this->setCommendMds($comment_mds);
+        $this->setCommendEtu($comment_etu);
+        
     }
     
     /**
@@ -242,7 +255,7 @@ class Stage {
      * @return Questionnaire
      */
     public function getQuestionnaire($id) {
-        return $this->_questionnaires[0];
+        return $this->_questionnaires[$id];
     }
     
     /**
@@ -251,5 +264,37 @@ class Stage {
      */
     public function addQuestionnaire($questionnaire) {
         $this->_questionnaires[] = $questionnaire;
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    public function getCommentMds() {
+        return $this->_comment_mds;
+    }
+    
+    /**
+     * 
+     * @param string $comment_mds
+     */
+    public function setCommendMds($comment_mds) {
+        $this->_comment_mds = $comment_mds;
+    }
+    
+    /**
+     * 
+     * @return string
+     */
+    public function getCommentEtu() {
+        return $this->_comment_etu;
+    }
+    
+    /**
+     * 
+     * @param string $comment_etu
+     */
+    public function setCommendEtu($comment_etu) {
+        $this->_comment_etu = $comment_etu;
     }
 }

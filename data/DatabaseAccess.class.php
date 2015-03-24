@@ -102,14 +102,17 @@ class DatabaseAccess {
      */
     public function getStage($id, $questionnaire = NULL) {
         try {
-            $sql = "SELECT ref_identification, ref_etudiant, date_debut, date_fin "
-                    . "FROM stage WHERE id = :id";
+            $sql = "SELECT ref_identification, ref_etudiant, date_debut, date_fin,
+                    commentaire_supplementaire_MDS as 'comment_mds', 
+                    commentaire_supplementaire_etudiant as 'comment_etu'
+                    FROM stage WHERE id = :id";
             $request = $this->_getConnection()->prepare($sql);
             $request->execute(array(':id' => $id));
             $result = $request->fetch();
             
             $stage = new Stage($id, new \DateTime($result['date_debut']),
-                    new \DateTime($result['date_fin']));
+                    new \DateTime($result['date_fin']), $result['comment_mds'], 
+                    $result['comment_etu']);
             $stage->setEtudiant($this->getEtudiant($result['ref_etudiant']));
             $stage->setMaitreDeStage($this->getPharmacien($result['ref_identification']));
             if($questionnaire === NULL)
