@@ -57,6 +57,6 @@ abstract class Person {
     }
     
     public function __toString() {
-        return $this->getFirstname() . ' ' . $this->getLastName();
+        return $this->getLastName() . ' ' . $this->getFirstName();
     }
 }

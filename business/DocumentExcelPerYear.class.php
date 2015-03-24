@@ -71,7 +71,7 @@ class DocumentExcelPerYear extends DocumentExcel{
             $file_name = "Formulaire d'evaluation des stagiares";
         }
         
-        return ($this->getYear()-1) . '-' . $this->getYear() . ' ' . $file_name;
+        return $this->getYear() . '-' . ($this->getYear()+1) . ' ' . $file_name;
     }
     
     /**

@@ -15,7 +15,7 @@ use \Exception;
  */
 class DatabaseAccess {
     const SEPARATOR = '#';
-    const MIN_YEAR = 2010;
+    const MIN_YEAR = 2013;
     const TYPE_EVALUATION_ETUDIANT = 1;
     const TYPE_EVALUATION_MDS = 2;
     /**
@@ -137,7 +137,8 @@ class DatabaseAccess {
     public function getAllIdStageForEtudiant($id_etudiant, $type_evaluation) {
         try{
             $sql = "SELECT id FROM stage WHERE ref_etudiant = :ref_etudiant AND " .
-                    $this->getColForEvaluation($type_evaluation) . " = 1";
+                    $this->getColForEvaluation($type_evaluation) . " = 1 
+                    ORDER BY date_fin DESC";
             $request = $this->_getConnection()->prepare($sql);
             $request->execute(array(':ref_etudiant' => $id_etudiant));
             $results = $request->fetchAll(\PDO::FETCH_ASSOC);
@@ -292,10 +293,10 @@ class DatabaseAccess {
     public function getMatriculeEtudiantPerYear($year, $type_evaluation) {
         $sql = "SELECT e.matricule FROM etudiant e
                 JOIN stage s ON e.matricule = s.ref_etudiant 
-                WHERE e.annee like 'PHAR5%' GROUP BY e.matricule
-                HAVING substr(max(s.date_fin),1,4) = :year AND max(s." .
-                $this->getColForEvaluation($type_evaluation) .
-                " = 1) ORDER BY e.matricule";
+                WHERE e.annee like 'PHAR5%' AND e.anac = :year
+                GROUP BY e.matricule
+                HAVING max(s." . $this->getColForEvaluation($type_evaluation) .
+                " = 1) ORDER BY e.nom, e.prenom";
         $request = $this->_getConnection()->prepare($sql);
         $request->execute(array(':year' => $year));
         $result = $request->fetchAll(\PDO::FETCH_ASSOC);
@@ -317,45 +318,21 @@ class DatabaseAccess {
      * @return int[] Liste des années avec des étudiants qui ont terminés
      */
     public function getYearWithFinalStudent($type_evaluation) {
-        $sql = "SELECT substr(s.date_fin,1,4) as 'year' FROM stage s
+        $sql = "SELECT e.anac as 'year' FROM stage s
                 JOIN etudiant e ON e.matricule = s.ref_etudiant
-                WHERE e.annee like 'PHAR5%' AND substr(s.date_fin,1,4) >= :min_year
-                AND substr(s.date_fin,1,4) <= year(NOW()) AND s." .
+                WHERE e.annee like 'PHAR5%' AND e.anac >= :min_year
+                AND e.anac <= year(NOW()) AND s." .
                 $this->getColForEvaluation($type_evaluation) .  
-                "=1 GROUP BY substr(s.date_fin,1,4) ORDER BY s.date_fin DESC";
+                "=1 GROUP BY e.anac ORDER BY s.date_fin DESC";
         $request = $this->_getConnection()->prepare($sql);
         $request->execute(array('min_year' => self::MIN_YEAR));
         $result = $request->fetchAll(\PDO::FETCH_ASSOC);
 
         foreach($result as $row) {
-            if($this->verifYearHasFinalStudent($row['year']))
-            {
-                $year[] = $row['year'];
-            }
+            $year[] = $row['year'];
         }
+        
         return $year;
-    }
-    
-    /**
-     * Verifie qu'une année a bien un étudiant en final
-     * @param int $year
-     * @return boolean
-     */
-    protected function verifYearHasFinalStudent($year) {
-        $sql = "SELECT s.id FROM stage s
-                JOIN etudiant e ON e.matricule = s.ref_etudiant
-                WHERE e.annee like 'PHAR5%' GROUP BY e.matricule
-                HAVING max(substr(s.date_fin,1,4)) = :year";
-        $request = $this->_getConnection()->prepare($sql);
-        $request->execute(array('year' =>$year));
-        $verif_year = $request->fetchAll(\PDO::FETCH_ASSOC);
-        
-        if(count($verif_year) > 0)
-        {
-            return true;
-        }
-        
-        return false;
     }
 
     private function _getConnection() {
