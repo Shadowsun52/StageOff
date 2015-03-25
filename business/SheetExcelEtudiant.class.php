@@ -26,4 +26,14 @@ class SheetExcelEtudiant extends SheetExcel{
                 $this->getStage()->getPeriode());
         $this->addStyleForStageInfo($first_line);
     }
+    
+    protected function writeComment() {
+        $this->getSheet()->setCellValue('A' . $this->getCurrentLine(), 
+                "Commentaire :");
+        $this->getSheet()->getStyle('A'. $this->moveCurrentLine())
+                     ->applyFromArray($this->STYLE_INFO);
+        $this->getSheet()->setCellValue('A' . $this->getCurrentLine(),
+        $this->getStage()->getCommentEtu());
+        $this->addStyleForComment($this->getStage()->getCommentEtu());
+    }
 }

@@ -18,15 +18,16 @@ abstract class SheetExcel {
     const HEIGHT_LINE_FOR_PROPOSITION = 15;
     const BIG_PROPOSITION = 16;
     const MAX_PROPOSITION_SIZE = 30;
+    const MAX_COMMENT_LINE_SIZE = 80;
    
 //<editor-fold defaultstate="collapsed" desc="list style">
-    private $STYLE_DEFAULT = array(
+    protected $STYLE_DEFAULT = array(
                         'font' => array(
                             'size' => 10,
                             'name' => 'Verdana'
                         )
                     );
-    private $STYLE_TITLE= array(
+    protected $STYLE_TITLE= array(
                         'font'  => array(
                             'bold'  => true,
                             'size'  => 9,
@@ -34,7 +35,7 @@ abstract class SheetExcel {
                         )
                     );
     
-    private $STYLE_INFO = array(
+    protected $STYLE_INFO = array(
                         'font'  => array(
                             'bold'  => true
                         ),
@@ -43,13 +44,13 @@ abstract class SheetExcel {
                         )
                     );
     
-    private $STYLE_QUESTION_TITLE = array(
+    protected $STYLE_QUESTION_TITLE = array(
                         'alignment' =>array(
                             'vertical' => \PHPExcel_Style_Alignment::VERTICAL_CENTER,
                         )
                     );
     
-    private $STYLE_PROPOSITION = array(
+    protected $STYLE_PROPOSITION = array(
                             'borders'  => array(
                                 'allborders' => array(
                                     'style' => \PHPExcel_style_Border::BORDER_THIN
@@ -60,7 +61,7 @@ abstract class SheetExcel {
                             )
                         );
     
-    private $STYLE_QUESTIONNEMENT = array(
+    protected $STYLE_QUESTIONNEMENT = array(
                             'borders' => array(
                                 'allborders' => array(
                                     'style' => \PHPExcel_Style_Border::BORDER_THIN
@@ -70,7 +71,7 @@ abstract class SheetExcel {
                                 'vertical' => \PHPExcel_Style_Alignment::VERTICAL_CENTER
                             )
                         );
-    private $STYLE_RESULT = array(
+    protected $STYLE_RESULT = array(
                             'borders' => array(
                                 'allborders' => array(
                                     'style' => \PHPExcel_Style_Border::BORDER_THIN
@@ -132,6 +133,7 @@ abstract class SheetExcel {
         $this->writeTitle($id_questionnaire);
         $this->writeStageInfo();
         $this->writeAllQuestions($id_questionnaire);
+        $this->writeComment();
     }
     
     /**
@@ -179,13 +181,15 @@ abstract class SheetExcel {
      * Ecrit toute les questions d'un questionnaire dans le fichier excel
      * @param int $id_questionnaire
      */ 
-    protected  function writeAllQuestions($id_questionnaire) {
+    protected function writeAllQuestions($id_questionnaire) {
         $number_question = 1;
         $this->moveCurrentLine();
         foreach ($this->getStage()->getQuestionnaireById($id_questionnaire)->getQuestions() as $question) {
             $this->writeQuestion($question, $number_question++);
         }
     }
+    
+    protected abstract function writeComment();
     
     /**
      * Ecrit une question dans le fichier excel
@@ -368,6 +372,31 @@ abstract class SheetExcel {
                 ->applyFromArray($this->STYLE_QUESTION_TITLE);
         $this->getSheet()->getRowDimension($this->getCurrentLine())
                 ->setRowHeight(self::HEIGHT_TITLE_QUESTION);
+    }
+    
+    /**
+     * 
+     * @param string $comment
+     */
+    protected function addStyleForComment($comment) {
+        echo strlen($comment) . '-';
+        if(strlen($comment) == 0)
+        {
+            $nb_line = 1;
+        }
+        else
+        {
+            $nb_line = ceil(strlen($comment)/self::MAX_COMMENT_LINE_SIZE);
+        }
+        echo $nb_line . ' ';
+        $this->getSheet()->mergeCells('A' . $this->getCurrentLine() . 
+                ':G' . $this->getCurrentLine());
+        $this->getSheet()->getStyle('A' . $this->getCurrentLine())
+                ->getAlignment()->setWrapText(true);
+        $this->getSheet()->getRowDimension($this->getCurrentLine())->setRowHeight(
+                self::HEIGHT_LINE_FOR_PROPOSITION * $nb_line);
+        $this->getSheet()->getStyle('A'. $this->moveCurrentLine())
+                ->getAlignment()->setVertical(\PHPExcel_Style_Alignment::VERTICAL_CENTER);
     }
 //</editor-fold>
     

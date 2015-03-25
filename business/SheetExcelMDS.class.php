@@ -13,7 +13,6 @@ class SheetExcelMDS extends SheetExcel{
     
     protected function writeStageInfo() {
         $first_line = parent::writeStageInfo();
-        $long_line = $this->getCurrentLine();
         $this->getSheet()->setCellValue('A' . $this->getCurrentLine(),
                 "Durée et Période de stage");
         $this->getSheet()->setCellValue('B' . $this->moveCurrentLine(),
@@ -37,5 +36,15 @@ class SheetExcelMDS extends SheetExcel{
         $this->getSheet()->setCellValue('D' . $this->moveCurrentLine(),
                 $this->getStage()->getMaitreDeStage()->getPharmacie()->getMail());
         $this->addStyleForStageInfo($first_line, 'C');
+    }
+    
+    protected function writeComment() {
+        $this->getSheet()->setCellValue('A' . $this->getCurrentLine(), 
+                "Commentaire :");
+        $this->getSheet()->getStyle('A'. $this->moveCurrentLine())
+                     ->applyFromArray($this->STYLE_INFO);
+        $this->getSheet()->setCellValue('A' . $this->getCurrentLine(),
+        $this->getStage()->getCommentMds());
+        $this->addStyleForComment($this->getStage()->getCommentMds());
     }
 }
