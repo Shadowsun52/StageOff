@@ -379,7 +379,6 @@ abstract class SheetExcel {
      * @param string $comment
      */
     protected function addStyleForComment($comment) {
-        echo strlen($comment) . '-';
         if(strlen($comment) == 0)
         {
             $nb_line = 1;
@@ -388,7 +387,7 @@ abstract class SheetExcel {
         {
             $nb_line = ceil(strlen($comment)/self::MAX_COMMENT_LINE_SIZE);
         }
-        echo $nb_line . ' ';
+        
         $this->getSheet()->mergeCells('A' . $this->getCurrentLine() . 
                 ':G' . $this->getCurrentLine());
         $this->getSheet()->getStyle('A' . $this->getCurrentLine())
